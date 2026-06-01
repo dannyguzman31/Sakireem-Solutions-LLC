@@ -143,7 +143,7 @@ a {
 
 a:hover,
 a:focus {
-  color: #0449c4;
+  color: hsl(218, 96%, 39%);
 }
 
 a,
@@ -2273,6 +2273,7 @@ body.dark,
   letter-spacing: -1.6px;
 }
 
+
 .plan-title span {
   font-size: 15px;
   font-weight: 600;
@@ -2299,6 +2300,65 @@ body.dark,
 .dark-shadow {
   -webkit-box-shadow: 0px 0px 30px 0px rgba(217, 0, 255, 0.47) !important;
   box-shadow: 0px 0px 30px 0px rgba(217, 0, 255, 0.47) !important;
+}
+/* additional to price section */
+
+/* Make pricing cards equal height */
+.price-plan-wrapper > div {
+  display: flex;
+}
+
+.price-plan-wrapper .single-price-plan {
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Push button to bottom */
+.price-plan-wrapper .plan-description {
+  flex-grow: 1;
+}
+
+.price-plan-wrapper .plan-button {
+  margin-top: auto;
+}
+
+/* Make cards feel wider and cleaner */
+.price-plan-area .container {
+  max-width: 1320px;
+}
+
+.single-price-plan {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Align pricing card content */
+.price-plan-wrapper .single-price-plan {
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+.price-plan-wrapper .plan-title {
+  min-height: 150px;
+}
+
+.price-plan-wrapper .plan-price {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.price-plan-wrapper .plan-description {
+  flex-grow: 1;
+}
+
+.price-plan-wrapper .plan-button {
+  margin-top: auto;
 }
 
 /* ******************************
