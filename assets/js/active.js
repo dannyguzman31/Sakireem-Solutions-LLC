@@ -44,7 +44,7 @@
         .queue(function () {
           $(this).remove();
         });
-    }, 100);
+    }, 2300);
   });
 
   // :: 2.0 NAVIGATION MENU ACTIVE CODE
