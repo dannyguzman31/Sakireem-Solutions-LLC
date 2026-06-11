@@ -642,7 +642,7 @@ img {
 
 /*BACKGROUND COLORS*/
 .color-1 {
-  color: #be63f9;
+  color: #0253d5e4;
 }
 
 .color-2 {
@@ -650,49 +650,58 @@ img {
 }
 
 .color-3 {
-  color: #fc573b;
+  color: #dc3644;
 }
 
 .color-4 {
-  color: #34ff92;
+  color: #28a744;
 }
 
 .color-5 {
-  color: #ffd200;
+  color: #ffc109;
 }
 
 .color-6 {
   color: #ff9d45;
 }
 
+.color-7 {
+  color: #3d92ca;
+}
+
 .color-1.bg-hover:hover::after,
 .color-1.bg-hover.active::after {
-  background-color: #be63f9;
+  background-color: #0253d5e4;
 }
 
 .color-2.bg-hover:hover::after,
 .color-2.bg-hover.active::after {
-  background-color: #26c6da;
+  background-color: #356de5;
 }
 
 .color-3.bg-hover:hover::after,
 .color-3.bg-hover.active::after {
-  background-color: #fc573b;
+  background-color: #dc3644;
 }
 
 .color-4.bg-hover:hover::after,
 .color-4.bg-hover.active::after {
-  background-color: #34ff92;
+  background-color: #28a744;
 }
 
 .color-5.bg-hover:hover::after,
 .color-5.bg-hover.active::after {
-  background-color: #ffd200;
+  background-color: #ffc109;
 }
 
 .color-6.bg-hover:hover::after,
 .color-6.bg-hover.active::after {
   background-color: #ff9d45;
+}
+
+.color-7.bg-hover:hover::after,
+.color-7.bg-hover.active::after {
+  background-color: #3d92ca;
 }
 
 .text-muted {
@@ -1465,11 +1474,16 @@ header {
 
 .welcome-area .welcome-shape {
   position: absolute;
-  top: auto;
   bottom: -6px;
   left: 0;
-  right: 0;
+  width: 100%;
   z-index: -1;
+}
+
+.welcome-area .welcome-shape img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* ******************************

@@ -53,7 +53,7 @@
             <span data-text-preloader="E" class="animated-letters">E</span>
             <span data-text-preloader="M" class="animated-letters">M</span>
           </div>
-          <p class="fw-5 text-center text-uppercase">SOLUTIONS LLC</p>
+          <p class="fw-5 text-center text-uppercase">SOLUTIONS</p>
         </div>
         <!-- Loader Animation -->
         <div class="loader-animation">
@@ -125,24 +125,11 @@
                 <a class="nav-link scroll" href="#pricing">Pricing</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link scroll" href="#portfolio">Portfolio</a>
+                <a class="nav-link scroll" href="404.html">Portfolio</a>
               </li>
-              <!-- <li class="nav-item">
-                <a class="nav-link scroll" href="#contact">Contact</a>
-              </li> -->
             </ul>
             <!-- Navbar Icons -->
             <ul class="navbar-nav icons">
-              <!-- <li class="nav-item">
-                <a
-                  href="#"
-                  class="nav-link"
-                  data-toggle="modal"
-                  data-target="#search"
-                >
-                  <i class="fas fa-search"></i>
-                </a>
-              </li> -->
               <li class="nav-item social">
                 <a href="#" class="nav-link"
                   ><i class="fab fa-facebook-f"></i
@@ -172,7 +159,7 @@
             <!-- Navbar Action Button -->
             <ul class="navbar-nav action">
               <li class="nav-item ml-3">
-                <a href="#" class="btn ml-lg-auto btn-bordered-white"
+                <a href="#contact" class="btn ml-lg-auto btn-bordered-white"
                   ><i class="fas fa-paper-plane contact-icon mr-md-2"></i
                   >Contact Us</a
                 >
@@ -207,9 +194,13 @@
                 <div
                   class="button-group d-flex align-items-center justify-content-center justify-content-md-start"
                 >
-                  <a href="#" class="btn btn-bordered-white">Get Started</a>
+                  <a href="#contact" class="btn btn-bordered-white"
+                    >Get Started</a
+                  >
                   <!-- Play Button -->
-                  <a href="#" class="btn btn-bordered-white">Our Services</a>
+                  <a href="#services" class="btn btn-bordered-white"
+                    >Our Services</a
+                  >
                 </div>
               </div>
             </div>
@@ -362,7 +353,7 @@
                     </div>
                   </li>
                 </ul>
-                <a href="#" class="btn btn-bordered mt-4">Learn More</a>
+                <a href="#services" class="btn btn-bordered mt-4">Learn More</a>
               </div>
             </div>
             <div class="col-12 col-lg-6">
@@ -503,7 +494,15 @@
                 <h2>Plans Built for Growth</h2>
                 <p class="d-none d-sm-block mt-4">
                   Transparent pricing designed to help local
-                  <span style="font-weight: 900; color: #0449c4">
+                  <span
+                    style="
+                      font-weight: 900;
+                      color: #dc3644;
+                      text-decoration: underline;
+                      text-decoration-color: #dc3644;
+                      text-decoration-thickness: 1px;
+                    "
+                  >
                     businesses grow online.
                   </span>
                   From professional websites and online scheduling to bilingual
@@ -552,10 +551,6 @@
                         <li class="py-2">SSL</li>
                       </ul>
                     </div>
-
-                    <div class="plan-button">
-                      <a href="#" class="btn btn-bordered mt-3">Get Started</a>
-                    </div>
                   </div>
                 </div>
 
@@ -589,10 +584,6 @@
                         <li class="py-2">Appointment Reminders</li>
                         <li class="py-2">Automated Forms</li>
                       </ul>
-                    </div>
-
-                    <div class="plan-button">
-                      <a href="#" class="btn btn-bordered mt-3">Get Started</a>
                     </div>
                   </div>
                 </div>
@@ -628,10 +619,6 @@
                         <li class="py-2">Language Switcher</li>
                       </ul>
                     </div>
-
-                    <div class="plan-button">
-                      <a href="#" class="btn btn-bordered mt-3">Add This</a>
-                    </div>
                   </div>
                 </div>
 
@@ -661,9 +648,6 @@
                         <li class="py-2">Local SEO Updates</li>
                         <li class="py-2">Priority Support</li>
                       </ul>
-                    </div>
-                    <div class="plan-button">
-                      <a href="#" class="btn btn-bordered mt-3">Get Started</a>
                     </div>
                   </div>
                 </div>
@@ -699,7 +683,7 @@
                 <ul>
                   <!-- Contact Info -->
                   <li
-                    class="contact-info color-1 bg-hover active hover-bottom text-center p-5 m-3"
+                    class="contact-info color-4 bg-hover active hover-bottom text-center p-5 m-3"
                   >
                     <span><i class="fas fa-mobile-alt fa-3x"></i></span>
                     <a class="d-block my-2" href="#">
@@ -711,7 +695,7 @@
                   </li>
                   <!-- Contact Info -->
                   <li
-                    class="contact-info color-3 bg-hover active hover-bottom text-center p-5 m-3"
+                    class="contact-info color-7 bg-hover active hover-bottom text-center p-5 m-3"
                   >
                     <span><i class="fas fa-envelope-open-text fa-3x"></i></span>
                     <a class="d-none d-sm-block my-2" href="#">
@@ -734,8 +718,27 @@
                 <form
                   id="contact-form"
                   method="POST"
-                  action="assets/php/mail.php"
+                  action="https://api.web3forms.com/submit"
                 >
+                  <input
+                    type="hidden"
+                    name="access_key"
+                    value="c22e14dc-b5bd-4fd6-bb8a-38bb86254506"
+                  />
+
+                  <input
+                    type="hidden"
+                    name="subject"
+                    value="New Consultation Request - Sakireem Solutions"
+                  />
+
+                  <input
+                    type="checkbox"
+                    name="botcheck"
+                    class="hidden"
+                    style="display: none"
+                  />
+
                   <div class="row">
                     <div class="col-12">
                       <div class="form-group">
@@ -747,15 +750,17 @@
                           required="required"
                         />
                       </div>
+
                       <div class="form-group">
                         <input
                           type="text"
                           class="form-control"
-                          name="name"
+                          name="business"
                           placeholder="Business Name"
                           required="required"
                         />
                       </div>
+
                       <div class="form-group">
                         <input
                           type="email"
@@ -765,16 +770,18 @@
                           required="required"
                         />
                       </div>
+
                       <div class="form-group">
                         <input
-                          type="text"
+                          type="tel"
                           class="form-control"
-                          name="subject"
+                          name="phone"
                           placeholder="Phone Number"
                           required="required"
                         />
                       </div>
                     </div>
+
                     <div class="col-12">
                       <div class="form-group">
                         <textarea
@@ -785,14 +792,16 @@
                         ></textarea>
                       </div>
                     </div>
+
                     <div class="col-12">
                       <button
                         type="submit"
                         class="btn btn-bordered active btn-block mt-3"
                       >
-                        <span class="text-white pr-3"
-                          ><i class="fas fa-paper-plane"></i></span
-                        >Get My Free Consulation
+                        <span class="text-white pr-3">
+                          <i class="fas fa-paper-plane"></i>
+                        </span>
+                        Get My Free Consultation
                       </button>
                     </div>
                   </div>
@@ -804,6 +813,19 @@
         </div>
       </section>
       <!--====== Contact Area End ======-->
+      <!--====== Map Area Start ======-->
+      <section class="section map-area">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3342.6486722998607!2d-111.49660412377105!3d33.092026367820054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x872a4797398b6b29%3A0xefa3ea3325c1fcd2!2s6733%20E%20Quiet%20Retreat%2C%20Florence%2C%20AZ%2085132!5e0!3m2!1sen!2sus!4v1781158972260!5m2!1sen!2sus"
+          width="600"
+          height="450"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </section>
+      <!--====== Map Area End ======-->
       <!--====== Footer Area Start ======-->
       <footer class="section footer-area bg-overlay ptb_0">
         <!-- Footer Top -->
@@ -831,7 +853,7 @@
                       <a class="text-white" href="#pricing">Pricing</a>
                     </li>
                     <li class="py-2">
-                      <a class="text-white" href="#portfolio">Portfolio</a>
+                      <a class="text-white" href="/404.html">Portfolio</a>
                     </li>
                   </ul>
                 </div>
@@ -870,18 +892,16 @@
                     <li class="list-inline-item px-1">
                       <a href="#"><i class="text-white fab fa-facebook"></i></a>
                     </li>
-                    <li class="list-inline-item px-1">
+                    <!-- <li class="list-inline-item px-1">
                       <a href="#"><i class="text-white fab fa-twitter"></i></a>
-                    </li>
+                    </li> -->
                     <li class="list-inline-item px-1">
                       <a href="#"
                         ><i class="text-white fab fa-google-plus"></i
                       ></a>
                     </li>
                     <li class="list-inline-item px-1">
-                      <a href="#"
-                        ><i class="text-white fab fa-linkedin-in"></i
-                      ></a>
+                      <a href="#"><i class="text-white fab fa-whatsapp"></i></a>
                     </li>
                     <li class="list-inline-item px-1">
                       <a href="#"
@@ -917,50 +937,6 @@
         </div>
       </footer>
       <!--====== Footer Area End ======-->
-
-      <!--====== Modal Search Area Start ======-->
-      <!-- <div id="search" class="modal fade p-0">
-        <div class="modal-dialog dialog-animated">
-          <div class="modal-content h-100">
-            <div class="modal-header" data-dismiss="modal">
-              Search <i class="far fa-times-circle icon-close"></i>
-            </div>
-            <div class="modal-body">
-              <form class="row">
-                <div class="col-12 align-self-center">
-                  <div class="row">
-                    <div class="col-12 pb-3">
-                      <h2 class="search-title mb-3">
-                        What are you looking for?
-                      </h2>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Praesent diam lacus, dapibus sed imperdiet consectetur.
-                      </p>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12 input-group">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter your keywords"
-                      />
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12 input-group align-self-center">
-                      <button class="btn btn-bordered mt-3">Search</button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!--====== Modal Search Area End ======-->
-
       <!--====== Modal Responsive Menu Area Start ======-->
       <div id="menu" class="modal fade p-0">
         <div class="modal-dialog dialog-animated">

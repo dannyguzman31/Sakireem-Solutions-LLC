@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 438 300.57" role="img" aria-labelledby="title desc">
+  <title id="title">Page is under construction</title>
+  <desc id="desc">A clean under construction page illustration with large soft gray text and small construction icons.</desc>
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .big{font-family:Arial, Helvetica, sans-serif;font-weight:800;letter-spacing:-4px;fill:#f2f2f2;}
+      .main{font-family:Arial, Helvetica, sans-serif;font-weight:700;fill:#ffffff;letter-spacing:1.2px;}
+      .sub{font-family:Arial, Helvetica, sans-serif;font-weight:400;fill:#ffffff;opacity:.82;letter-spacing:.9px;}
+      .line{stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none;opacity:.75;}
+      .fill-light{fill:#ffffff;opacity:.9;}
+      .fill-soft{fill:#f2f2f2;}
+    </style>
+  </defs>
+
+  <!-- transparent background; place on a dark/colored section like the original -->
+  <g filter="url(#softShadow)">
+    <text class="big" x="219" y="124" font-size="88" text-anchor="middle">PAGE</text>
+    <text class="big" x="219" y="188" font-size="54" text-anchor="middle" letter-spacing="-2px">BUILD</text>
+  </g>
+
+  <g transform="translate(28 216)">
+    <line class="line" x1="0" y1="0" x2="382" y2="0"/>
+    <circle class="fill-light" cx="0" cy="0" r="3"/>
+    <circle class="fill-light" cx="382" cy="0" r="3"/>
+  </g>
+
+  <text class="main" x="219" y="248" font-size="23" text-anchor="middle">PAGE IS UNDER</text>
+  <text class="main" x="219" y="280" font-size="26" text-anchor="middle">CONSTRUCTION</text>
+
+  <!-- left construction cone -->
+  <g transform="translate(43 252)">
+    <path class="fill-soft" d="M14 0h16l12 35H2L14 0z"/>
+    <path d="M18 9h8l3 8H15l3-8z" fill="#ffffff" opacity=".95"/>
+    <path d="M11 23h22l3 8H8l3-8z" fill="#ffffff" opacity=".95"/>
+    <rect class="fill-light" x="-4" y="35" width="52" height="6" rx="3"/>
+  </g>
+
+  <!-- right simple barricade -->
+  <g transform="translate(342 253)">
+    <rect class="fill-soft" x="0" y="0" width="54" height="12" rx="3"/>
+    <path d="M7 12v30M47 12v30" class="line"/>
+    <path d="M10 0l13 12M30 0l13 12" stroke="#ffffff" stroke-width="3" opacity=".95"/>
+    <rect class="fill-light" x="-5" y="39" width="64" height="5" rx="2.5"/>
+  </g>
+
+  <!-- small hard hat accent -->
+  <g transform="translate(186 22)">
+    <path class="fill-soft" d="M12 24c1-14 11-22 21-22s20 8 21 22H12z"/>
+    <rect class="fill-light" x="6" y="23" width="54" height="7" rx="3.5"/>
+    <path class="line" d="M33 3v19M22 8c-3 4-5 8-5 14M44 8c3 4 5 8 5 14"/>
+  </g>
+</svg>
