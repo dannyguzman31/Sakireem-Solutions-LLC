@@ -1340,14 +1340,14 @@ header {
 /* logo */
 
 .navbar-brand img {
-  height: 85px;
+  height: 95px;
   width: auto;
   transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
   .navbar-brand img {
-    height: 42px;
+    height: 60px;
   }
 }
 
