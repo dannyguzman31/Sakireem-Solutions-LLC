@@ -510,9 +510,7 @@ img {
   -webkit-transition: -webkit-transform 0.3s ease-in 0s;
   transition: -webkit-transform 0.3s ease-in 0s;
   transition: transform 0.3s ease-in 0s;
-  transition:
-    transform 0.3s ease-in 0s,
-    -webkit-transform 0.3s ease-in 0s;
+  transition: transform 0.3s ease-in 0s, -webkit-transform 0.3s ease-in 0s;
 }
 
 .service-btn:hover::after {
@@ -642,7 +640,7 @@ img {
 
 /*BACKGROUND COLORS*/
 .color-1 {
-  color: #0253d5e4;
+  color: #007bff;
 }
 
 .color-2 {
@@ -671,7 +669,7 @@ img {
 
 .color-1.bg-hover:hover::after,
 .color-1.bg-hover.active::after {
-  background-color: #0253d5e4;
+  background-color: #007bff;
 }
 
 .color-2.bg-hover:hover::after,
@@ -790,8 +788,8 @@ img {
 }
 
 .homepage-3 .welcome-area {
-  background: rgba(0, 0, 0, 0) url('../img/bg/') no-repeat scroll center
-    center / cover;
+  background: rgba(0, 0, 0, 0) url('../img/bg/') no-repeat scroll center center /
+    cover;
 }
 
 .homepage-4 .welcome-area {
@@ -820,8 +818,8 @@ img {
 }
 
 .error-page .stars {
-  background: rgba(0, 0, 0, 0) url('../img/bg/stars.svg') repeat fixed left
-    top / contain;
+  background: rgba(0, 0, 0, 0) url('../img/bg/stars.svg') repeat fixed left top /
+    contain;
 }
 
 /* ******************************
@@ -862,9 +860,7 @@ img {
 }
 
 .preloader-animation .loader {
-  font:
-    bold 5em 'Poppins',
-    sans-serif;
+  font: bold 5em 'Poppins', sans-serif;
   text-align: center;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -1018,9 +1014,7 @@ img {
   }
 
   .preloader-animation .loader {
-    font:
-      bold 3.5em 'Poppins',
-      sans-serif;
+    font: bold 3.5em 'Poppins', sans-serif;
   }
 }
 
@@ -1031,9 +1025,7 @@ img {
   }
 
   .preloader-animation .loader {
-    font:
-      bold 2em 'Poppins',
-      sans-serif;
+    font: bold 2em 'Poppins', sans-serif;
   }
 }
 
@@ -1200,17 +1192,10 @@ header {
   transition-timing-function: ease;
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
-  -webkit-transition-property:
-    opacity,
-    -webkit-transform;
-  transition-property:
-    opacity,
-    -webkit-transform;
+  -webkit-transition-property: opacity, -webkit-transform;
+  transition-property: opacity, -webkit-transform;
   transition-property: opacity, transform;
-  transition-property:
-    opacity,
-    transform,
-    -webkit-transform;
+  transition-property: opacity, transform, -webkit-transform;
 }
 
 .dropdown-menu .dropdown-menu {
@@ -1653,10 +1638,10 @@ body.dark,
   border-radius: 0;
   -webkit-transition: 300ms ease;
   transition: 300ms ease;
-  -webkit-transition-property:
-    color, background, mix-blend-mode, opacity, visibility, height;
-  transition-property:
-    color, background, mix-blend-mode, opacity, visibility, height;
+  -webkit-transition-property: color, background, mix-blend-mode, opacity,
+    visibility, height;
+  transition-property: color, background, mix-blend-mode, opacity, visibility,
+    height;
 }
 
 .grad-hover::before {
@@ -1672,10 +1657,10 @@ body.dark,
   opacity: 0;
   -webkit-transition: 300ms ease;
   transition: 300ms ease;
-  -webkit-transition-property:
-    color, background, mix-blend-mode, opacity, visibility, height;
-  transition-property:
-    color, background, mix-blend-mode, opacity, visibility, height;
+  -webkit-transition-property: color, background, mix-blend-mode, opacity,
+    visibility, height;
+  transition-property: color, background, mix-blend-mode, opacity, visibility,
+    height;
   z-index: 0;
 }
 
@@ -1994,20 +1979,13 @@ body.dark,
   border-radius: 6px;
   -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.01);
   box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.01);
-  -webkit-transition:
-    -webkit-box-shadow,
+  -webkit-transition: -webkit-box-shadow,
     -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    -webkit-box-shadow,
+  transition: -webkit-box-shadow,
     -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    box-shadow,
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    box-shadow,
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    -webkit-box-shadow,
-    -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-box-shadow, -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .single-service.service-gallery .service-content {
@@ -2080,20 +2058,13 @@ body.dark,
 .single-case-studies > a > img {
   -webkit-transform: translateY(0px);
   transform: translateY(0px);
-  -webkit-transition:
-    -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     -webkit-filter 0.4s;
-  transition:
-    -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     -webkit-filter 0.4s;
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.4s;
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.4s,
-    -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    -webkit-filter 0.4s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s,
+    -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), -webkit-filter 0.4s;
 }
 
 .case-studies-overlay {
@@ -2119,18 +2090,11 @@ body.dark,
   opacity: 0;
   -webkit-transform: translateY(0px);
   transform: translateY(0px);
-  -webkit-transition:
-    opacity 0.3s,
+  -webkit-transition: opacity 0.3s,
     -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    opacity 0.3s,
-    -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s;
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s,
+  transition: opacity 0.3s, -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s,
     -webkit-transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -2453,18 +2417,10 @@ body.dark,
   box-shadow: 0 10px 50px 0px rgba(0, 0, 0, 0.12);
   -webkit-transform: scale(0.96);
   transform: scale(0.96);
-  -webkit-transition:
-    background-color,
-    -webkit-transform 0.3s ease-in-out 0s;
-  transition:
-    background-color,
-    -webkit-transform 0.3s ease-in-out 0s;
-  transition:
-    background-color,
-    transform 0.3s ease-in-out 0s;
-  transition:
-    background-color,
-    transform 0.3s ease-in-out 0s,
+  -webkit-transition: background-color, -webkit-transform 0.3s ease-in-out 0s;
+  transition: background-color, -webkit-transform 0.3s ease-in-out 0s;
+  transition: background-color, transform 0.3s ease-in-out 0s;
+  transition: background-color, transform 0.3s ease-in-out 0s,
     -webkit-transform 0.3s ease-in-out 0s;
   z-index: 1;
 }
@@ -2497,8 +2453,7 @@ body.dark,
   -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transition: -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -2519,20 +2474,13 @@ body.dark,
   -webkit-box-shadow: 0 0.313rem 0.875rem rgba(45, 49, 54, 0.09);
   box-shadow: 0 0.313rem 0.875rem rgba(45, 49, 54, 0.09);
   border-radius: 4px;
-  -webkit-transition:
-    -webkit-box-shadow,
+  -webkit-transition: -webkit-box-shadow,
     -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    -webkit-box-shadow,
+  transition: -webkit-box-shadow,
     -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    box-shadow,
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition:
-    box-shadow,
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    -webkit-box-shadow,
-    -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-box-shadow, -webkit-transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .blog-thumb img {
@@ -2709,9 +2657,7 @@ body.dark,
   -webkit-transition: -webkit-box-shadow 1s ease 0s;
   transition: -webkit-box-shadow 1s ease 0s;
   transition: box-shadow 1s ease 0s;
-  transition:
-    box-shadow 1s ease 0s,
-    -webkit-box-shadow 1s ease 0s;
+  transition: box-shadow 1s ease 0s, -webkit-box-shadow 1s ease 0s;
 }
 
 .search-widget input:focus {
@@ -3116,9 +3062,7 @@ body.dark,
     -webkit-transition: -webkit-transform 20s;
     transition: -webkit-transform 20s;
     transition: transform 20s;
-    transition:
-      transform 20s,
-      -webkit-transform 20s;
+    transition: transform 20s, -webkit-transform 20s;
   }
 }
 
@@ -3129,9 +3073,7 @@ body.dark,
     -webkit-transition: -webkit-transform 20s;
     transition: -webkit-transform 20s;
     transition: transform 20s;
-    transition:
-      transform 20s,
-      -webkit-transform 20s;
+    transition: transform 20s, -webkit-transform 20s;
   }
 }
 
