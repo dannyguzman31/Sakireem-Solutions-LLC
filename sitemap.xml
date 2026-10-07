@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.sakireemsolutions.com/</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://www.sakireemsolutions.com/" />
+    <xhtml:link rel="alternate" hreflang="es-MX" href="https://www.sakireemsolutions.com/es/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.sakireemsolutions.com/" />
+  </url>
+  <url>
+    <loc>https://www.sakireemsolutions.com/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://www.sakireemsolutions.com/" />
+    <xhtml:link rel="alternate" hreflang="es-MX" href="https://www.sakireemsolutions.com/es/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.sakireemsolutions.com/" />
+  </url>
+</urlset>
