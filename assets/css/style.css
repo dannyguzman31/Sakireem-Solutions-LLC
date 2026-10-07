@@ -1047,11 +1047,11 @@ img {
 ****************************** */
 #scrollUp {
   position: fixed;
-  right: 2%;
-  bottom: 3%;
-  height: 50px;
-  width: 50px;
-  line-height: 45px;
+  right: 24px;
+  bottom: 96px;
+  height: 44px;
+  width: 44px;
+  line-height: 40px;
   border-radius: 50%;
   background-color: #191919;
   text-align: center;
@@ -1073,6 +1073,17 @@ img {
 #scrollUp:hover {
   -webkit-transform: scale(1.2);
   transform: scale(1.2);
+}
+
+/* Keep the scroll-to-top control above the Botpress chat launcher. */
+@media only screen and (max-width: 767px) {
+  #scrollUp {
+    right: 18px;
+    bottom: 90px;
+    height: 42px;
+    width: 42px;
+    line-height: 38px;
+  }
 }
 
 /* ******************************
