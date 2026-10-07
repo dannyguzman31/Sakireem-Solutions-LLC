@@ -1,0 +1,81 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TD3D58HDM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-8TD3D58HDM');
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thank You | Sakireem Solutions</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/assets/img/favicon.png" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/responsive.css" />
+    <link rel="stylesheet" href="/assets/css/thank-you.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+  </head>
+  <body class="thank-you-page">
+    <header class="thank-you-header">
+      <div class="container">
+        <a href="/" aria-label="Sakireem Solutions">
+          <img
+            class="thank-you-logo"
+            src="/assets/img/Sakireem/sakireem_logo_black.png"
+            alt="Sakireem Solutions"
+          />
+        </a>
+      </div>
+    </header>
+
+    <main class="thank-you-main">
+      <div class="container">
+        <section class="thank-you-card">
+          <div class="thank-you-icon" aria-hidden="true">
+            <i class="fas fa-check"></i>
+          </div>
+          <span class="thank-you-eyebrow">REQUEST RECEIVED</span>
+          <h1>Thank You for Reaching Out</h1>
+          <p>Your consultation request was submitted successfully.</p>
+          <p>We'll review the details you shared and get back to you soon with the next steps for your project.</p>
+
+          <div class="thank-you-actions">
+            <a class="btn btn-bordered active" href="/">
+              Back to Home
+            </a>
+            <a class="btn btn-bordered" href="/#services">
+              View Our Services
+            </a>
+          </div>
+
+          <p class="thank-you-note">
+            <i class="fas fa-lock"></i> You can safely close this page. Your request has already been received.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      if (
+        sessionStorage.getItem('sakireemLeadSubmitted') === 'true' &&
+        typeof gtag === 'function'
+      ) {
+        gtag('event', 'generate_lead', {
+          lead_source: 'website_contact_form',
+          site_language: 'en',
+        });
+        sessionStorage.removeItem('sakireemLeadSubmitted');
+      }
+    </script>
+  </body>
+</html>
