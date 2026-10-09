@@ -2624,14 +2624,30 @@ body.dark,
   flex: 1 1 auto;
 }
 
+/* Keep reviewer information aligned at the bottom */
 .single-review .reviewer {
   margin-top: auto !important;
+}
+
+/* Add breathing room below testimonial text */
+.single-review .review-content {
+  padding-bottom: 24px;
 }
 
 .single-review .quot-icon {
   position: absolute;
   top: 8%;
   left: 13%;
+}
+/* Justify testimonial paragraphs */
+
+.client-reviews .single-review .review-text p {
+  text-align: justify;
+  text-align-last: left;
+  text-justify: inter-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  line-height: 1.65;
 }
 
 /* ******************************
@@ -3573,4 +3589,29 @@ body.dark,
   .centered-contact-info .contact-info h3 {
     font-size: 17px;
   }
+}
+
+/* All testimonial photos */
+.client-reviews .reviewer-thumb img {
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Mario - move crop upward */
+.client-reviews .single-review:nth-child(1) .reviewer-thumb img {
+  object-position: center 20%;
+}
+
+/* Robert */
+.client-reviews .single-review:nth-child(2) .reviewer-thumb img {
+  object-position: center 30%;
+}
+
+/* Ricardo */
+.client-reviews .single-review:nth-child(3) .reviewer-thumb img {
+  object-position: center 35%;
 }
