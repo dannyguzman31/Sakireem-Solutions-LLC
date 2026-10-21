@@ -134,3 +134,123 @@
   border-color: #391a75;
   box-shadow: 0 0 0 3px rgba(57, 26, 117, 0.12);
 }
+
+/* Force pricing elements to stack vertically */
+.price-flip-front .plan-price {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Starting at label */
+.price-flip-front .plan-price .starting-at {
+  display: block !important;
+  width: 100%;
+  font-size: 15px !important;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #777;
+  margin: 0 0 5px 0;
+}
+
+/* Price amount */
+.price-flip-front .plan-price .price-amount {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+/* Price typography */
+.price-flip-front .price-amount .h1 {
+  margin: 0;
+}
+
+
+/* ========================================
+   COMPACT PRICING CARDS
+======================================== */
+
+/* Reduce overall card height */
+.price-plan-wrapper .price-flip-inner,
+.price-plan-wrapper .price-flip-front,
+.price-plan-wrapper .price-flip-back {
+  min-height: 470px;
+}
+
+/* Slightly rounded card corners */
+.price-plan-wrapper .price-flip-card {
+  border-radius: 14px;
+}
+
+.price-plan-wrapper .price-flip-inner {
+  border-radius: inherit;
+}
+
+.price-plan-wrapper .price-flip-front,
+.price-plan-wrapper .price-flip-back {
+  border-radius: inherit;
+}
+
+/* Reduce internal padding */
+.price-plan-wrapper .price-flip-front {
+  padding: 30px 20px !important;
+}
+
+/* Tighter spacing between features */
+.price-plan-wrapper .plan-features li {
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+
+/* Adjust spacing around price */
+.price-plan-wrapper .plan-price {
+  padding-bottom: 12px !important;
+  margin-bottom: 8px;
+}
+
+/* Ensure cards remain consistent on mobile */
+@media (max-width: 767px) {
+  .price-plan-wrapper .price-flip-inner,
+  .price-plan-wrapper .price-flip-front,
+  .price-plan-wrapper .price-flip-back {
+    min-height: 450px;
+  }
+}
+
+
+/* Payment type label beneath price */
+.price-flip-front .plan-price .payment-type {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Pricing disclaimer below cards */
+.pricing-disclaimer {
+  margin: 28px auto 0;
+  max-width: 850px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: #888;
+}
+
+@media (max-width: 767px) {
+  .pricing-disclaimer {
+    margin-top: 24px;
+    padding: 0 15px;
+    font-size: 12px;
+  }
+}
