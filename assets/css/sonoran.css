@@ -95,6 +95,16 @@ body.sonoran {
 .sonoran-kicker i { margin-right: 4px; }
 .sonoran-hero h1 { font-size: clamp(2.8rem, min(5.8vw, 10svh), 5.65rem); line-height: 1.02; margin: 0 0 24px; }
 .sonoran-hero h1 em { color: var(--rust-dark); font-weight: 600; }
+@media (min-width: 992px) {
+  .sonoran-hero-grid {
+    width: 94%;
+    max-width: 1440px;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: clamp(24px, 3vw, 52px);
+  }
+  .sonoran-hero h1 { font-size: clamp(2.8rem, min(4.65vw, 9svh), 5.25rem); }
+}
+
 .sonoran p.sonoran-intro { font-size: clamp(1.04rem, 1.45vw, 1.26rem); line-height: 1.6; max-width: 32rem; margin: 0 0 22px; }
 .sonoran-price {
   width: fit-content;
@@ -220,7 +230,7 @@ body.sonoran {
   transform: none !important;
 }
 .sonoran .price-flip-card .price-flip-front {
-  position: static;
+  position: relative;
   display: flex;
   flex-direction: column;
   text-align: left !important;
@@ -234,7 +244,35 @@ body.sonoran {
   background: #fffdfa;
   transform: none !important;
 }
-.sonoran .price-flip-front::after, .sonoran .price-flip-front::before { content: none; }
+.sonoran .price-flip-front::before { content: none; }
+.sonoran .price-flip-front.bg-hover.hover-top::after {
+  inset: -1px -1px auto;
+  width: auto;
+  height: 5px;
+  border-radius: 12px 12px 0 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+@media (hover: hover) {
+  .sonoran .five-card-grid > div:hover .price-flip-front.bg-hover.hover-top::after {
+    background-color: currentColor;
+    opacity: 1;
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .sonoran .price-flip-card .price-flip-front {
+    transition: translate .2s ease, box-shadow .2s ease;
+  }
+  .sonoran .five-card-grid > div:hover .price-flip-front {
+    translate: 0 -6px;
+    box-shadow: 0 12px 24px #38201524;
+  }
+}
+.sonoran .price-flip-front.bg-hover.hover-top:has(:focus-visible)::after {
+  background-color: currentColor;
+  opacity: 1;
+}
 .sonoran .price-flip-front .plan-title,
 .sonoran .price-flip-front .plan-price { min-height: 0; }
 .sonoran .price-flip-front .price-amount { color: var(--rust-dark); justify-content: center; }
