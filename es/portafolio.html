@@ -94,8 +94,8 @@
     <meta name="theme-color" content="#391a75" />
     <meta name="format-detection" content="telephone=no" />
 
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="../assets/img/Sakireem/sakireem_logo_black.png" />
+    <link rel="apple-touch-icon" href="../assets/img/Sakireem/sakireem_logo_black.png" />
 
     <link rel="stylesheet" href="../assets/css/style.css" />
     <link rel="stylesheet" href="../assets/css/responsive.css" />
@@ -104,8 +104,9 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     />
+      <link rel="stylesheet" href="../assets/css/sonoran.css" />
   </head>
-  <body class="homepage-3 portfolio-page">
+  <body class="sonoran homepage-3 portfolio-page">
     <!--====== Preloader Area Start ======-->
     <div id="preloader">
       <!-- Digimax Preloader -->
@@ -158,104 +159,20 @@
     <!--====== Scroll To Top Area End ======-->
     <div class="main overflow-hidden">
       <!-- ***** Header Start ***** -->
-      <header id="header">
-        <!-- Navbar -->
-        <nav
-          class="navbar navbar-expand"
-          data-aos="zoom-out"
-          data-aos-delay="800"
-        >
-          <div class="container header">
-            <!-- Navbar Brand-->
-            <a class="navbar-brand" href="/">
-              <img
-                alt="brand-logo"
-                class="navbar-brand-regular"
-                src="../assets/img/Sakireem/sakireem_logo_white.png"
-              />
-              <img
-                alt="sticky brand-logo"
-                class="navbar-brand-sticky"
-                src="../assets/img/Sakireem/sakireem_logo_black.png"
-              />
-            </a>
-            <div class="ml-auto"></div>
-            <!-- Navbar -->
-            <ul class="navbar-nav items">
-              <li class="nav-item">
-                <a class="nav-link" href="/es/#home">Inicio</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/es/#about">Nosotros</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/es/#services">Servicios</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/es/#pricing">Precios</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="/es/portafolio.html"
-                  >Portafolio</a
-                >
-              </li>
-            </ul>
-            <!-- Navbar Icons -->
-            <ul class="navbar-nav icons">
-              <li class="nav-item social">
-                <a class="nav-link" href="#"
-                  ><i class="fab fa-facebook-f"></i
-                ></a>
-              </li>
-              <li class="nav-item social">
-                <a class="nav-link" href="#"
-                  ><i class="fab fa-instagram"></i
-                ></a>
-              </li>
-            </ul>
-            <!-- Language Switcher -->
-            <div class="switch-lang">
-              <div class="current-lang">
-                <img
-                  alt="Español"
-                  class="lang-flag"
-                  src="../assets/img/Sakireem/mexico.png"
-                />
-                <span class="lang-text">Español</span>
-              </div>
-              <div class="lang-dropdown">
-                <a class="selecting-lang" href="/portfolio.html">
-                  <img
-                    alt="English"
-                    class="lang-flag"
-                    src="../assets/img/Sakireem/united-states.png"
-                  />
-                  <span class="lang-text">English</span>
-                </a>
-              </div>
-            </div>
-            <!-- Navbar Toggler -->
-            <ul class="navbar-nav toggle">
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-target="#menu"
-                  data-toggle="modal"
-                  href="#"
-                >
-                  <i class="fas fa-bars toggle-icon m-0"></i>
-                </a>
-              </li>
-            </ul>
-            <!-- Navbar Action Button -->
-            <ul class="navbar-nav action">
-              <li class="nav-item ml-3">
-                <a class="btn ml-lg-auto btn-bordered-white" href="/es/#contact"
-                  ><i class="fas fa-paper-plane contact-icon mr-md-2"></i
-                  >Contáctanos</a
-                >
-              </li>
-            </ul>
+      <header id="header" class="sonoran-header">
+        <nav class="container sonoran-nav" aria-label="Navegación principal">
+          <a class="sonoran-brand" href="index.html"><img src="../assets/img/Sakireem/sakireem_logo_black.png" alt="Sakireem Solutions" width="152" height="76" /></a>
+          <div class="sonoran-nav-links" id="primary-navigation">
+          <a href="index.html#services">Servicios</a>
+          <a href="index.html#pricing">Precios</a>
+          <a href="portafolio.html">Portafolio</a>
+          <a href="index.html#faq">FAQ</a>
+          <a class="sonoran-mobile-contact" href="index.html#contact">Hablemos</a>
+          </div>
+          <div class="sonoran-nav-actions">
+            <a href="../portfolio.html" lang="en" hreflang="en" class="sonoran-language-link">English</a>
+            <a class="sonoran-button sonoran-desktop-contact" href="index.html#contact">Hablemos <span aria-hidden="true" class="sonoran-arrow"></span></a>
+            <button class="sonoran-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="primary-navigation"><span aria-hidden="true" class="fas fa-bars"></span></button>
           </div>
         </nav>
       </header>
@@ -292,7 +209,7 @@
             </p>
           </div>
 
-          <article class="project-card">
+          <article id="dental-co" class="project-card">
             <a
               class="project-preview-link"
               href="https://mydental-co.com/"
@@ -329,11 +246,11 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 data-portfolio-project="Dental-CO"
-                >Visitar Sitio Web <span aria-hidden="true">↗</span></a
+                >Visitar Sitio Web <span aria-hidden="true" class="sonoran-arrow"></span></a
               >
             </div>
           </article>
-          <article class="project-card mt-5">
+          <article id="casa-del-telar" class="project-card mt-5">
             <a
               class="project-preview-link"
               href="https://casa-del-telar-preview.netlify.app/"
@@ -373,12 +290,12 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 data-portfolio-project="Casa del Telar"
-                >Visitar Sitio Web <span aria-hidden="true">↗</span></a
+                >Visitar Sitio Web <span aria-hidden="true" class="sonoran-arrow"></span></a
               >
             </div>
           </article>
 
-          <article class="project-card mt-5">
+          <article id="air-zona" class="project-card mt-5">
             <a
               class="project-preview-link"
               href="https://air-zonaairconditioning.com/"
@@ -420,7 +337,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 data-portfolio-project="Air-zona Air Conditioning LLC"
-                >Visitar Sitio Web <span aria-hidden="true">↗</span></a
+                >Visitar Sitio Web <span aria-hidden="true" class="sonoran-arrow"></span></a
               >
             </div>
           </article>
@@ -442,7 +359,7 @@
                   solución adecuada de sitio web, SEO, reservaciones o
                   automatización.
                 </p>
-                <a href="/es/#contact" class="btn btn-bordered-white mt-4"
+                <a href="index.html#contact" class="btn btn-bordered-white mt-4"
                   >Solicita una Consulta Gratis</a
                 >
               </div>
@@ -452,12 +369,20 @@
       </section>
       <!--====== Portfolio CTA End ======-->
       <!--====== Footer Area Start ======-->
-      <footer class="section footer-area bg-overlay ptb_0">
+      <footer class="section footer-area ptb_0">
         <!-- Footer Top -->
         <div class="footer-top ptb_80">
           <div class="container">
             <div class="row justify-content-between">
-              <div class="col-12 col-sm-6 col-lg-3">
+              <div class="col-12 col-lg-4 footer-brand-column">
+                <div class="footer-items footer-brand">
+                  <a href="index.html">
+                    <img src="../assets/img/Sakireem/sakireem_logo_white.png" alt="Sakireem Solutions" width="168" height="84" loading="lazy" />
+                  </a>
+                  <p>Diseñamos sitios web bilingües para negocios locales y les ayudamos a atraer clientes con SEO local y citas en línea.</p>
+                </div>
+              </div>
+              <div class="col-12 col-sm-4 col-lg">
                 <!-- Footer Items -->
                 <div class="footer-items footer-links">
                   <!-- Footer Title -->
@@ -466,26 +391,26 @@
                   </h3>
                   <ul>
                     <li class="py-2">
-                      <a class="text-white" href="/es/#home">Inicio</a>
+                      <a class="text-white" href="index.html#home">Inicio</a>
                     </li>
                     <li class="py-2">
-                      <a class="text-white" href="/es/#about">Nosotros</a>
+                      <a class="text-white" href="index.html#about">Nosotros</a>
                     </li>
                     <li class="py-2">
-                      <a class="text-white" href="/es/#services">Servicios</a>
+                      <a class="text-white" href="index.html#services">Servicios</a>
                     </li>
                     <li class="py-2">
-                      <a class="text-white" href="/es/#pricing">Precios</a>
+                      <a class="text-white" href="index.html#pricing">Precios</a>
                     </li>
                     <li class="py-2">
-                      <a class="text-white" href="/es/portafolio.html"
+                      <a class="text-white" href="portafolio.html"
                         >Portafolio</a
                       >
                     </li>
                   </ul>
                 </div>
               </div>
-              <div class="col-12 col-sm-6 col-lg-3">
+              <div class="col-12 col-sm-4 col-lg">
                 <!-- Footer Items -->
                 <div class="footer-items footer-services">
                   <!-- Footer Title -->
@@ -502,7 +427,7 @@
                   </ul>
                 </div>
               </div>
-              <div class="col-12 col-sm-6 col-lg-3">
+              <div class="col-12 col-sm-4 col-lg">
                 <!-- Footer Items -->
                 <div class="footer-items follow-us">
                   <!-- Footer Title -->
@@ -555,8 +480,6 @@
                     © <span id="current-year"></span> Sakireem Solutions. Todos
                     los derechos reservados.
                   </div>
-                  <!-- Copyright Right -->
-                  <div class="text-white copyright-right">Licencia LLC: #</div>
                 </div>
               </div>
             </div>
@@ -605,7 +528,7 @@
         });
       });
 
-      document.querySelectorAll('.selecting-lang').forEach((link) => {
+      document.querySelectorAll('.sonoran-language-link').forEach((link) => {
         link.addEventListener('click', function () {
           if (typeof gtag === 'function') {
             gtag('event', 'language_switch', {
@@ -641,5 +564,6 @@
           });
         });
     </script>
+      <script src="../assets/js/sonoran.js" defer></script>
   </body>
 </html>
