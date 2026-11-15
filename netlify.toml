@@ -1,0 +1,9 @@
+[build]
+  command = "node netlify/build-preview.mjs"
+  publish = "chat-preview-dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"

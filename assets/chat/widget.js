@@ -6,7 +6,9 @@
   const language = document.documentElement.lang.toLowerCase().startsWith("es")
     ? "es" : "en";
   const panelUrl = new URL("panel.html", script.src);
-  panelUrl.search = new URLSearchParams({ bot, lang: language });
+  const options = new URLSearchParams({ bot, lang: language });
+  if (script.dataset.preview === "hosted") options.set("preview", "hosted");
+  panelUrl.search = options;
 
   const host = document.createElement("sakireem-chat-widget");
   const root = host.attachShadow({ mode: "open" });

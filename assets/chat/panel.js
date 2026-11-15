@@ -6,6 +6,8 @@ const translations = {
   en: {
     preview: "Preview · FAQ replies",
     ai: "Preview · AI replies",
+    code: "Preview access code",
+    invalidCode: "Enter the correct preview access code and try again.",
     failed: "I couldn’t get an AI reply. Try again or use the contact link below.",
     unavailable: "This chat preview is unavailable.",
     fallback: "I can answer the questions shown here. For anything else, please use the contact links below.",
@@ -17,6 +19,8 @@ const translations = {
   es: {
     preview: "Vista previa · Preguntas frecuentes",
     ai: "Vista previa · Respuestas con IA",
+    code: "Código de acceso a la vista previa",
+    invalidCode: "Verifica el código de acceso e inténtalo de nuevo.",
     failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o usa el enlace de contacto.",
     unavailable: "Esta vista previa del chat no está disponible.",
     fallback: "Puedo responder las preguntas que aparecen aquí. Para otras consultas, usa los enlaces de contacto.",
@@ -34,7 +38,14 @@ const actions = document.getElementById("actions");
 const form = document.getElementById("message-form");
 const field = document.getElementById("message");
 const send = document.getElementById("send");
-const aiEnabled = ["localhost", "127.0.0.1"].includes(location.hostname) && location.port === "8000";
+const hosted = params.get("preview") === "hosted";
+const aiEnabled = hosted || (["localhost", "127.0.0.1"].includes(location.hostname) && location.port === "8000");
+const codeField = document.getElementById("preview-code");
+codeField.hidden = !hosted;
+codeField.required = hosted;
+codeField.placeholder = copy.code;
+codeField.setAttribute("aria-label", copy.code);
+let previewCode = "";
 const history = [];
 messages.setAttribute("aria-label", copy.conversation);
 actions.setAttribute("aria-label", copy.contact);
@@ -101,13 +112,31 @@ async function start() {
       send.disabled = true;
       form.setAttribute("aria-busy", "true");
       try {
+        const headers = { "Content-Type": "application/json" };
+        if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
         const response = await fetch("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({ bot: id, language, message: question, history: history.slice(-4) })
         });
+        if (hosted && response.status === 401) {
+          previewCode = "";
+          codeField.value = "";
+          codeField.required = true;
+          codeField.hidden = false;
+          field.value = question;
+          appendMessage(copy.invalidCode);
+          codeField.focus();
+          return;
+        }
         if (!response.ok) throw new Error("Model request failed");
         const { reply } = await response.json();
+        if (hosted) {
+          previewCode = headers["X-Chat-Preview-Code"];
+          codeField.value = "";
+          codeField.required = false;
+          codeField.hidden = true;
+        }
         appendMessage(reply);
         history.push({ role: "user", content: question }, { role: "assistant", content: reply.slice(0, 1200) });
         if (history.length > 4) history.splice(0, history.length - 4);
