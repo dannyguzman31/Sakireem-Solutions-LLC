@@ -5,7 +5,8 @@
 
   const language = document.documentElement.lang.toLowerCase().startsWith("es")
     ? "es" : "en";
-  const panelUrl = new URL("panel.html", script.src);
+  const panelFile = script.dataset.chatMode === "public" ? "panel-public.html" : "panel.html";
+  const panelUrl = new URL(panelFile, script.src);
   const options = new URLSearchParams({ bot, lang: language });
   if (script.dataset.preview === "hosted") options.set("preview", "hosted");
   panelUrl.search = options;

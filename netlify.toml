@@ -7,3 +7,9 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[headers]]
+  for = "/assets/chat/panel-public.html"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors 'self' https://sakireemsolutions.com https://www.sakireemsolutions.com http://localhost:8001"
+    X-Robots-Tag = "noindex, nofollow"

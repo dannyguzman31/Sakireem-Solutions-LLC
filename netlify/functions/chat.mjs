@@ -1,4 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
+import { getStore } from "@netlify/blobs";
+import { reservePublicReply } from "../public-chat-budget.mjs";
 import sakireem from "../../assets/chat/bots/sakireem.json" with { type: "json" };
 import hvac from "../../assets/chat/bots/hvac-arizona-valley.json" with { type: "json" };
 
@@ -17,12 +19,23 @@ export const config = {
 export default async function chat(request) {
   if (request.method !== "POST") return json(405, { error: "Use POST" });
   const key = process.env.OPENAI_API_KEY?.trim();
-  const previewCode = process.env.CHAT_PREVIEW_CODE?.trim();
-  if (!key || !previewCode) return json(503, { error: "Preview setup incomplete" });
+  if (!key) return json(503, { error: "Chat setup incomplete" });
 
-  const suppliedCode = request.headers.get("X-Chat-Preview-Code") || "";
-  if (!timingSafeEqual(hash(suppliedCode), hash(previewCode))) {
-    return json(401, { error: "Invalid preview code" });
+  const publicMode = request.headers.get("X-Chat-Mode") === "public";
+  if (publicMode) {
+    if (process.env.CHAT_PUBLIC_ENABLED !== "true") {
+      return json(503, { error: "Public chat is disabled" });
+    }
+    if (request.headers.get("Origin") !== new URL(request.url).origin) {
+      return json(403, { error: "Open the hosted chat panel" });
+    }
+  } else {
+    const previewCode = process.env.CHAT_PREVIEW_CODE?.trim();
+    if (!previewCode) return json(503, { error: "Preview setup incomplete" });
+    const suppliedCode = request.headers.get("X-Chat-Preview-Code") || "";
+    if (!timingSafeEqual(hash(suppliedCode), hash(previewCode))) {
+      return json(401, { error: "Invalid preview code" });
+    }
   }
 
   let payload;
@@ -47,13 +60,26 @@ export default async function chat(request) {
 
   const { bot: id, language, message, history = [] } = payload ?? {};
   const bot = bots.get(id);
-  if (!bot) return json(404, { error: "Unknown bot" });
+  if (!bot || (publicMode && id !== "sakireem")) {
+    return json(404, { error: "Unknown bot" });
+  }
   if (!["en", "es"].includes(language) || typeof message !== "string"
       || message.length > 350 || !message.trim() || !Array.isArray(history)
       || history.length > 4 || history.some((entry) =>
         !["user", "assistant"].includes(entry?.role)
         || typeof entry.content !== "string" || entry.content.length > 1200)) {
     return json(400, { error: "Invalid chat request" });
+  }
+
+  if (publicMode) {
+    try {
+      if (!await reservePublicReply(getStore("public-chat-budget"))) {
+        return json(429, { error: "Daily chat limit reached" });
+      }
+    } catch {
+      console.error("Could not reserve public chat capacity");
+      return json(503, { error: "Chat temporarily unavailable" });
+    }
   }
 
   const facts = bot[language].faqs.map((faq) => faq.answer).join("\n");

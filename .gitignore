@@ -1,3 +1,4 @@
 /chat-preview-dist/
 /.netlify/
 /.env
+/node_modules/

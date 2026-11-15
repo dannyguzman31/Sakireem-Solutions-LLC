@@ -6,6 +6,8 @@ const translations = {
   en: {
     preview: "Preview · FAQ replies",
     ai: "Preview · AI replies",
+    live: "AI assistant",
+    limit: "Chat is busy right now. Please try later or use the contact link below.",
     code: "Preview access code",
     invalidCode: "Enter the correct preview access code and try again.",
     failed: "I couldn’t get an AI reply. Try again or use the contact link below.",
@@ -19,6 +21,8 @@ const translations = {
   es: {
     preview: "Vista previa · Preguntas frecuentes",
     ai: "Vista previa · Respuestas con IA",
+    live: "Asistente con IA",
+    limit: "El chat está ocupado. Intenta más tarde o usa el enlace de contacto.",
     code: "Código de acceso a la vista previa",
     invalidCode: "Verifica el código de acceso e inténtalo de nuevo.",
     failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o usa el enlace de contacto.",
@@ -38,8 +42,9 @@ const actions = document.getElementById("actions");
 const form = document.getElementById("message-form");
 const field = document.getElementById("message");
 const send = document.getElementById("send");
-const hosted = params.get("preview") === "hosted";
-const aiEnabled = hosted || (["localhost", "127.0.0.1"].includes(location.hostname) && location.port === "8000");
+const publicMode = location.pathname.endsWith("/panel-public.html");
+const hosted = !publicMode && params.get("preview") === "hosted";
+const aiEnabled = publicMode || hosted || (["localhost", "127.0.0.1"].includes(location.hostname) && location.port === "8000");
 const codeField = document.getElementById("preview-code");
 codeField.hidden = !hosted;
 codeField.required = hosted;
@@ -52,7 +57,7 @@ actions.setAttribute("aria-label", copy.contact);
 field.placeholder = copy.placeholder;
 field.setAttribute("aria-label", copy.placeholder);
 send.textContent = copy.send;
-document.getElementById("preview").textContent = aiEnabled ? copy.ai : copy.preview;
+document.getElementById("preview").textContent = publicMode ? copy.live : (aiEnabled ? copy.ai : copy.preview);
 
 function appendMessage(text, visitor = false) {
   const message = document.createElement("p");
@@ -113,6 +118,7 @@ async function start() {
       form.setAttribute("aria-busy", "true");
       try {
         const headers = { "Content-Type": "application/json" };
+        if (publicMode) headers["X-Chat-Mode"] = "public";
         if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -127,6 +133,10 @@ async function start() {
           field.value = question;
           appendMessage(copy.invalidCode);
           codeField.focus();
+          return;
+        }
+        if (response.status === 429) {
+          appendMessage(copy.limit);
           return;
         }
         if (!response.ok) throw new Error("Model request failed");

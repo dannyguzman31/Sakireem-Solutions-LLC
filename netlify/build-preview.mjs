@@ -3,6 +3,7 @@ import { cp, mkdir, writeFile } from "node:fs/promises";
 const destination = "chat-preview-dist";
 await mkdir(`${destination}/assets`, { recursive: true });
 await cp("assets/chat", `${destination}/assets/chat`, { recursive: true });
+await cp("assets/chat/panel.html", `${destination}/assets/chat/panel-public.html`);
 
 for (const [file, bot, name, lang] of [
   ["index.html", "sakireem", "Sakireem Digital Solutions", "en"],
