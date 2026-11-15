@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat assistant</title>
+  <link rel="stylesheet" href="panel.css">
+  <script src="panel.js" defer></script>
+</head>
+<body>
+  <header><h1 id="business"></h1><p id="preview"></p></header>
+  <div id="messages" role="log" aria-live="polite"></div>
+  <div id="questions"></div>
+  <form id="message-form" hidden>
+    <input id="message" type="text" maxlength="350" required>
+    <button id="send" type="submit"></button>
+  </form>
+  <nav id="actions"></nav>
+</body>
+</html>

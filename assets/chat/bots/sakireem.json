@@ -1,0 +1,106 @@
+{
+  "name": "Sakireem Digital Solutions",
+  "accent": "#15304a",
+  "en": {
+    "welcome": "Hi! Ask about web design, bilingual websites, or how to request a quote.",
+    "faqs": [
+      {
+        "question": "What do you offer?",
+        "keywords": [
+          "services",
+          "offer",
+          "seo",
+          "booking",
+          "marketing"
+        ],
+        "answer": "Sakireem offers web design, SEO, digital marketing, and online booking systems for businesses."
+      },
+      {
+        "question": "Do you build bilingual sites?",
+        "keywords": [
+          "bilingual",
+          "spanish",
+          "english"
+        ],
+        "answer": "Yes. Sakireem can build a website in English and Spanish."
+      },
+      {
+        "question": "How much does a website cost?",
+        "keywords": [
+          "cost",
+          "price",
+          "pricing",
+          "quote",
+          "how much"
+        ],
+        "answer": "Website design starts at $799 as a one-time design fee. Use the quote form for an estimate based on your project."
+      },
+      {
+        "question": "Do you offer social media management?",
+        "keywords": [
+          "social media",
+          "facebook",
+          "instagram"
+        ],
+        "answer": "Yes. Sakireem offers Facebook and Instagram management with weekly posts, Meta ad campaign management, automated replies, and monthly performance reports. The plan starts at $699 per month, with ad spend billed separately."
+      }
+    ],
+    "actions": [
+      {
+        "label": "Request a quote",
+        "url": "https://www.sakireemsolutions.com/#contact"
+      }
+    ]
+  },
+  "es": {
+    "welcome": "¡Hola! Pregunta sobre diseño web, sitios bilingües o cómo solicitar una cotización.",
+    "faqs": [
+      {
+        "question": "¿Qué servicios ofrecen?",
+        "keywords": [
+          "servicios",
+          "ofrecen",
+          "seo",
+          "reservas",
+          "marketing"
+        ],
+        "answer": "Sakireem ofrece diseño web, SEO, marketing digital y sistemas de reservas en línea para negocios."
+      },
+      {
+        "question": "¿Crean sitios bilingües?",
+        "keywords": [
+          "bilingüe",
+          "bilingües",
+          "español",
+          "inglés"
+        ],
+        "answer": "Sí. Sakireem puede crear un sitio web en inglés y español."
+      },
+      {
+        "question": "¿Cuánto cuesta una página web?",
+        "keywords": [
+          "cuánto",
+          "cuesta",
+          "precio",
+          "cotización"
+        ],
+        "answer": "El diseño web empieza en $799 como pago único por el diseño. Usa el formulario para solicitar una cotización para tu proyecto."
+      },
+      {
+        "question": "¿Ofrecen gestión de redes sociales?",
+        "keywords": [
+          "redes sociales",
+          "facebook",
+          "instagram"
+        ],
+        "answer": "Sí. Sakireem ofrece gestión de Facebook e Instagram con publicaciones semanales, campañas de Meta Ads, respuestas automáticas e informes mensuales. El plan empieza en $699 al mes y la inversión en anuncios se cobra por separado."
+      }
+    ],
+    "actions": [
+      {
+        "label": "Solicitar una cotización",
+        "url": "https://www.sakireemsolutions.com/es/#contact"
+      }
+    ]
+  }
+}

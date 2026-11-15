@@ -1,0 +1,30 @@
+{
+  "name": "HVAC Arizona Valley",
+  "accent": "#94312b",
+  "en": {
+    "welcome": "Hi! This is a demo for HVAC Arizona Valley. Ask where to request service.",
+    "faqs": [
+      {
+        "question": "How do I request HVAC service?",
+        "keywords": ["service", "appointment", "booking", "repair", "quote"],
+        "answer": "Visit the HVAC Arizona Valley website to request service and share what’s happening with your system."
+      }
+    ],
+    "actions": [
+      { "label": "Visit HVAC Arizona Valley", "url": "https://hvacarizonavalley.com/" }
+    ]
+  },
+  "es": {
+    "welcome": "¡Hola! Esta es una demostración para HVAC Arizona Valley. Pregunta dónde solicitar servicio.",
+    "faqs": [
+      {
+        "question": "¿Cómo solicito servicio?",
+        "keywords": ["servicio", "cita", "reparación", "cotización"],
+        "answer": "Visita el sitio de HVAC Arizona Valley para solicitar servicio y explicar qué sucede con tu equipo."
+      }
+    ],
+    "actions": [
+      { "label": "Visitar HVAC Arizona Valley", "url": "https://hvacarizonavalley.com/" }
+    ]
+  }
+}

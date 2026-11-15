@@ -1,0 +1,31 @@
+:host {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 10000;
+  display: grid;
+  justify-items: end;
+  gap: 9px;
+}
+button {
+  border: 0;
+  border-radius: 24px;
+  background: #15304a;
+  color: white;
+  padding: 12px 18px;
+  min-height: 44px;
+  font: 600 15px system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 16px #10223535;
+}
+iframe {
+  display: block;
+  width: min(380px, calc(100vw - 24px));
+  height: min(535px, calc(100vh - 85px));
+  height: min(535px, calc(100dvh - 85px));
+  border: 0;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 10px 36px #10223540;
+}
+iframe[hidden] { display: none; }
