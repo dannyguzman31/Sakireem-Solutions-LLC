@@ -2,6 +2,8 @@
   "name": "sakireem-chat",
   "private": true,
   "dependencies": {
-    "@netlify/blobs": "11.1.9"
+    "@netlify/blobs": "11.1.9",
+    "ipaddr.js": "2.5.0",
+    "parse5": "7.3.0"
   }
 }

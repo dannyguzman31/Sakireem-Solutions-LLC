@@ -22,6 +22,7 @@ test('backend admission gates OpenAI, records results, handles replay and databa
   calls.push({url,body:JSON.parse(options.body),headers:options.headers});
   if(url.endsWith('/chat_admit'))return failDB?new Response('{}',{status:503}):Response.json(decision);
   if(url.endsWith('/chat_knowledge'))return Response.json('Approved knowledge');
+  if(url.endsWith('/chat_source_passages'))return Response.json([{title:'Source',passage:'Test published excerpt'}]);
   if(url.endsWith('/chat_finish'))return Response.json(true);
   if(url==='https://api.openai.com/v1/responses')return failModel?new Response('{}',{status:502}):Response.json({output:[{type:'message',content:[{type:'output_text',text:'Test answer'}]}],usage:{input_tokens:12,output_tokens:4}});
   throw new Error('Unexpected test fetch');
@@ -31,6 +32,7 @@ test('backend admission gates OpenAI, records results, handles replay and databa
   let response=await chat(request());assert.equal(response.status,200);assert.equal((await response.json()).reply,'Test answer');
   assert.equal(calls.at(-1).body.p_state,'succeeded');assert.equal(calls.at(-1).body.p_input_tokens,12);
   assert.match(calls.find(call=>call.url.includes('api.openai.com')).body.instructions,/Approved knowledge/);
+  assert.match(calls.find(call=>call.url.includes('api.openai.com')).body.instructions,/Test published excerpt/);
   assert.equal(calls[0].headers.apikey,'sb_secret_test');assert.equal(calls[0].body.p_mode,'preview');
   calls=[];decision={allowed:false,code:'bot_paused'};response=await chat(request());assert.equal(response.status,403);assert.equal(calls.length,1);
   process.env.CHAT_MANAGER_MODE='all';calls=[];response=await chat(request(true));assert.equal(response.status,403);assert.equal(calls.length,1);assert.equal(calls[0].body.p_mode,'public');
