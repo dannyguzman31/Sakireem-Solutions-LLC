@@ -119,7 +119,7 @@ async function start() {
     questions.append(button);
   }
 
-  if (id === "sakireem" && (publicMode || hosted)) addQuoteForm(id);
+  if ((id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id);
 
   for (const action of content.actions) {
     const url = new URL(action.url);
@@ -208,7 +208,7 @@ start().catch(() => appendMessage(copy.unavailable));
 function addQuoteForm(bot) {
   const labels = language === "es" ? {
     title:"Solicitar una cotización en el chat", name:"Nombre", contact:"Correo electrónico o teléfono",
-    project:"Cuéntanos sobre tu proyecto", consent:"Acepto que Sakireem me contacte sobre esta solicitud.",
+    project:"Cuéntanos sobre tu proyecto", consent:"Acepto que la empresa me contacte sobre esta solicitud.",
     close:"Cerrar", send:"Enviar solicitud", sent:"Recibimos tu solicitud. Gracias.",
     test:"Vista previa: esta solicitud se marcará como prueba.",
     invalid:"Revisa tus datos. Ingresa un correo o teléfono válido.",
@@ -216,7 +216,7 @@ function addQuoteForm(bot) {
     retry:"No pudimos confirmar el envío. Intenta de nuevo o usa el enlace de contacto del chat."
   } : {
     title:"Request a quote in chat", name:"Name", contact:"Email or phone",
-    project:"Tell us about your project", consent:"I agree that Sakireem may contact me about this request.",
+    project:"Tell us about your project", consent:"I agree that the business may contact me about this request.",
     close:"Close", send:"Send request", sent:"We received your request. Thank you.",
     test:"Preview: this request will be marked as a test.",
     invalid:"Check your details. Enter a valid email or phone number.",

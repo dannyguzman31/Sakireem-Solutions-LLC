@@ -37,14 +37,14 @@ export default async function submitLead(request) {
     return result(400,"invalid");
   }
   const {bot, language, requestId, name, contact, project, confirmed} = payload ?? {};
-  if (bot !== "sakireem" || !["en","es"].includes(language) || confirmed !== true ||
+  if ((bot !== "sakireem" && !(mode === "preview" && bot === "hvac-arizona-valley")) || !["en","es"].includes(language) || confirmed !== true ||
       typeof requestId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId) ||
       ![[name,100],[contact,254],[project,1000]].every(([value,max]) =>
         typeof value === "string" && value.trim().length > 0 && value.length <= max && !value.includes("\0")) ||
       !(validEmail(contact.trim()) || validPhone(contact.trim()))) return result(400,"invalid");
   try {
     const code = await createManager().lead({
-      p_request:requestId, p_language:language, p_test:mode === "preview",
+      p_bot:bot, p_request:requestId, p_language:language, p_test:mode === "preview",
       p_name:name.trim(), p_contact:contact.trim(), p_project:project.trim()
     });
     if (code === "saved") return result(200,code);
