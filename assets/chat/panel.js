@@ -16,7 +16,10 @@ const translations = {
     invalidCode: "Enter the correct preview access code and try again.",
     failed: "I couldn’t get an AI reply. Try again or use the contact link below.",
     unavailable: "This chat preview is unavailable.",
-    fallback: "I can answer the questions shown here. For anything else, please use the contact links below.",
+    fallback: "I don’t have an answer for that question. Please use the contact links below.",
+    welcome: name => `Hello, welcome to ${name}.`,
+    offerHelp: "How can I assist you today?",
+    typing: "Assistant is typing.",
     placeholder: "Type a question",
     send: "Send",
     conversation: "Conversation",
@@ -35,7 +38,10 @@ const translations = {
     invalidCode: "Verifica el código de acceso e inténtalo de nuevo.",
     failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o usa el enlace de contacto.",
     unavailable: "Esta vista previa del chat no está disponible.",
-    fallback: "Puedo responder las preguntas que aparecen aquí. Para otras consultas, usa los enlaces de contacto.",
+    fallback: "No tengo una respuesta para esa pregunta. Usa los enlaces de contacto de abajo.",
+    welcome: name => `Hola, te damos la bienvenida a ${name}.`,
+    offerHelp: "¿En qué puedo ayudarte hoy?",
+    typing: "El asistente está escribiendo.",
     placeholder: "Escribe una pregunta",
     send: "Enviar",
     conversation: "Conversación",
@@ -45,7 +51,6 @@ const translations = {
 
 const copy = translations[language];
 const messages = document.getElementById("messages");
-const questions = document.getElementById("questions");
 const actions = document.getElementById("actions");
 const form = document.getElementById("message-form");
 const field = document.getElementById("message");
@@ -75,6 +80,17 @@ function appendMessage(text, visitor = false) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function showTyping() {
+  const bubble = document.createElement("p");
+  bubble.className = "message typing";
+  bubble.setAttribute("aria-label", copy.typing);
+  bubble.setAttribute("role", "status");
+  bubble.innerHTML = '<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>';
+  messages.append(bubble);
+  messages.scrollTop = messages.scrollHeight;
+  return bubble;
+}
+
 function normalize(text) {
   return text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")
     .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -100,24 +116,8 @@ async function start() {
   document.title = bot.name;
   document.getElementById("business").textContent = bot.name;
   document.body.style.setProperty("--accent", bot.accent);
-  appendMessage(content.welcome);
-
-  for (const faq of content.faqs) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = faq.question;
-    button.addEventListener("click", () => {
-      if (aiEnabled) {
-        if (send.disabled) return;
-        field.value = faq.question;
-        form.requestSubmit();
-      } else {
-        appendMessage(faq.question, true);
-        appendMessage(faq.answer);
-      }
-    });
-    questions.append(button);
-  }
+  appendMessage(copy.welcome(bot.name));
+  appendMessage(copy.offerHelp);
 
   if ((id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id);
 
@@ -141,6 +141,14 @@ async function start() {
     if (aiEnabled) {
       send.disabled = true;
       form.setAttribute("aria-busy", "true");
+      const bubble = showTyping();
+      function showReply(text) {
+        bubble.classList.remove("typing");
+        bubble.removeAttribute("aria-label");
+        bubble.removeAttribute("role");
+        bubble.textContent = text;
+        messages.scrollTop = messages.scrollHeight;
+      }
       try {
         const headers = { "Content-Type": "application/json" };
         if (publicMode) headers["X-Chat-Mode"] = "public";
@@ -156,7 +164,7 @@ async function start() {
           codeField.required = true;
           codeField.hidden = false;
           field.value = question;
-          appendMessage(copy.invalidCode);
+          showReply(copy.invalidCode);
           codeField.focus();
           return;
         }
@@ -169,7 +177,7 @@ async function start() {
         }
         if (!response.ok) {
           const explanation = {bot_paused:copy.paused,monthly_limit:copy.monthly,conversation_limit:copy.conversationLimit,request_pending:copy.pending};
-          appendMessage(explanation[result.code] || (response.status === 429 ? copy.limit : copy.failed));
+          showReply(explanation[result.code] || (response.status === 429 ? copy.limit : copy.failed));
           return;
         }
         const { reply } = result;
@@ -179,12 +187,14 @@ async function start() {
           codeField.required = false;
           codeField.hidden = true;
         }
-        appendMessage(reply);
+        if (typeof reply !== "string" || !reply.trim()) throw new Error("Empty reply");
+        showReply(reply);
         history.push({ role: "user", content: question }, { role: "assistant", content: reply.slice(0, 1200) });
         if (history.length > 4) history.splice(0, history.length - 4);
       } catch {
-        appendMessage(copy.failed);
+        showReply(copy.failed);
       } finally {
+        if (bubble.classList.contains("typing")) bubble.remove();
         send.disabled = false;
         form.removeAttribute("aria-busy");
       }

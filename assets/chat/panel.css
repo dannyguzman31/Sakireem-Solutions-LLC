@@ -3,7 +3,7 @@ body {
   --accent: #15304a;
   margin: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   height: 100vh;
   font: 15px/1.45 system-ui, sans-serif;
   color: #182937;
@@ -15,14 +15,13 @@ header p { margin: 4px 0 0; font-size: 12px; }
 #messages { overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .message { background: #eef2f5; padding: 8px 12px; border-radius: 12px; margin: 0; max-width: 92%; width: fit-content; overflow-wrap: anywhere; }
 .visitor { align-self: end; background: var(--accent); color: white; }
-#questions, #actions { padding: 4px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+#actions { padding: 4px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
 #actions { padding-bottom: 12px; }
 form { display: flex; gap: 6px; padding: 8px 14px; }
 form[hidden] { display: none; }
 input { flex: 1; min-width: 0; font: 16px system-ui, sans-serif; border: 1px solid #71808c; border-radius: 8px; padding: 7px; }
 button, a { font: inherit; border-radius: 8px; padding: 6px 9px; }
 button { cursor: pointer; }
-#questions button { background: white; color: var(--accent); border: 1px solid currentColor; }
 #send { background: var(--accent); color: white; border: 0; }
 a { color: var(--accent); }
 
@@ -47,3 +46,26 @@ a { color: var(--accent); }
 .quote-buttons {display:flex;gap:8px;justify-content:flex-end}
 .quote-dialog form {display:block;padding:0}
 .quote-dialog button:disabled {opacity:.6;cursor:wait}
+
+.message.typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 38px;
+}
+.typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+.typing span:nth-child(2) { animation-delay: .15s; }
+.typing span:nth-child(3) { animation-delay: .30s; }
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: .4; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .typing span { animation: none; }
+}
