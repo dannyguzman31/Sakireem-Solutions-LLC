@@ -28,3 +28,22 @@ a { color: var(--accent); }
 
 #message-form { flex-wrap: wrap; }
 #preview-code { flex: 0 0 100%; }
+.quote-open,.quote-buttons button {
+  background:var(--accent);color:white;border:0;border-radius:8px;padding:.55rem .75rem;
+  font:inherit;cursor:pointer;
+}
+.quote-dialog {
+  width:min(420px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;
+  border:1px solid #d4dde4;border-radius:12px;padding:16px;color:#15304a;background:white;
+}
+.quote-dialog::backdrop {background:#15304a88}
+.quote-dialog h2 {font-size:1.05rem;margin:0 0 12px}
+.quote-dialog label {display:block;margin:10px 0;font-size:.9rem}
+.quote-dialog input:not([type=checkbox]),.quote-dialog textarea {
+  display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:8px;border:1px solid #8796a2;
+  border-radius:6px;font:inherit;color:inherit;background:white;
+}
+.quote-dialog p {font-size:.85rem}
+.quote-buttons {display:flex;gap:8px;justify-content:flex-end}
+.quote-dialog form {display:block;padding:0}
+.quote-dialog button:disabled {opacity:.6;cursor:wait}

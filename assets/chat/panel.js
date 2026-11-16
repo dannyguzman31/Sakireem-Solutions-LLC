@@ -119,6 +119,8 @@ async function start() {
     questions.append(button);
   }
 
+  if (id === "sakireem" && (publicMode || hosted)) addQuoteForm(id);
+
   for (const action of content.actions) {
     const url = new URL(action.url);
     if (url.protocol !== "https:") continue;
@@ -202,3 +204,88 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") window.parent.postMessage("sakireem-chat-close", "*");
 });
 start().catch(() => appendMessage(copy.unavailable));
+
+function addQuoteForm(bot) {
+  const labels = language === "es" ? {
+    title:"Solicitar una cotización en el chat", name:"Nombre", contact:"Correo electrónico o teléfono",
+    project:"Cuéntanos sobre tu proyecto", consent:"Acepto que Sakireem me contacte sobre esta solicitud.",
+    close:"Cerrar", send:"Enviar solicitud", sent:"Recibimos tu solicitud. Gracias.",
+    test:"Vista previa: esta solicitud se marcará como prueba.",
+    invalid:"Revisa tus datos. Ingresa un correo o teléfono válido.",
+    code:"Ingresa el código correcto en el chat y vuelve a intentarlo.",
+    retry:"No pudimos confirmar el envío. Intenta de nuevo o usa el enlace de contacto del chat."
+  } : {
+    title:"Request a quote in chat", name:"Name", contact:"Email or phone",
+    project:"Tell us about your project", consent:"I agree that Sakireem may contact me about this request.",
+    close:"Close", send:"Send request", sent:"We received your request. Thank you.",
+    test:"Preview: this request will be marked as a test.",
+    invalid:"Check your details. Enter a valid email or phone number.",
+    code:"Enter the correct preview code in the chat and try again.",
+    retry:"We couldn’t confirm your submission. Try again or use the chat’s contact link."
+  };
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "quote-open";
+  button.textContent = labels.title;
+  actions.prepend(button);
+
+  const dialog = document.createElement("dialog");
+  dialog.className = "quote-dialog";
+  dialog.setAttribute("aria-labelledby","quote-title");
+  dialog.innerHTML = `<form>
+    <h2 id="quote-title">${labels.title}</h2>
+    ${hosted ? `<p>${labels.test}</p>` : ""}
+    <label>${labels.name}<input name="name" autocomplete="name" maxlength="100" required></label>
+    <label>${labels.contact}<input name="contact" maxlength="254" required></label>
+    <label>${labels.project}<textarea name="project" rows="3" maxlength="1000" required></textarea></label>
+    <label class="quote-consent"><input name="confirmed" type="checkbox" required> ${labels.consent}</label>
+    <p role="status" aria-live="polite"></p>
+    <div class="quote-buttons"><button type="button">${labels.close}</button><button type="submit">${labels.send}</button></div>
+  </form>`;
+  document.body.append(dialog);
+  const quote = dialog.querySelector("form");
+  const controls = [...quote.elements];
+  const close = quote.querySelector('[type="button"]');
+  const status = quote.querySelector('[role="status"]');
+  let sending = false;
+  let previousBody, requestId;
+  button.onclick = () => dialog.showModal();
+  close.onclick = () => dialog.close();
+  dialog.oncancel = event => { if (sending) event.preventDefault(); };
+  quote.onsubmit = async event => {
+    event.preventDefault();
+    if (sending) return;
+    const data = new FormData(quote);
+    const body = {
+      bot, language, name:data.get("name").trim(), contact:data.get("contact").trim(),
+      project:data.get("project").trim(), confirmed:data.has("confirmed")
+    };
+    const serialized = JSON.stringify(body);
+    if (serialized !== previousBody) requestId = crypto.randomUUID();
+    previousBody = serialized;
+    sending = true;
+    controls.forEach(control => control.disabled = true);
+    status.textContent = "";
+    try {
+      const headers = {"Content-Type":"application/json","X-Chat-Mode":publicMode ? "public" : "preview"};
+      if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
+      const response = await fetch("/api/chat-leads", {
+        method:"POST", headers, body:JSON.stringify({...body,requestId}),
+        signal:AbortSignal.timeout(12000)
+      });
+      if (response.ok && (await response.json()).code === "saved") {
+        quote.reset();
+        previousBody = undefined;
+        status.textContent = labels.sent;
+        appendMessage(labels.sent);
+      } else {
+        status.textContent = response.status === 401 ? labels.code : response.status === 400 ? labels.invalid : labels.retry;
+      }
+    } catch {
+      status.textContent = labels.retry;
+    } finally {
+      sending = false;
+      controls.forEach(control => control.disabled = false);
+    }
+  };
+}
