@@ -8,6 +8,10 @@ const translations = {
     ai: "Preview · AI replies",
     live: "AI assistant",
     limit: "Chat is busy right now. Please try later or use the contact link below.",
+    paused: "This assistant is currently paused. Please use the contact link below.",
+    monthly: "This assistant has reached its monthly conversation allowance. Please use the contact link below.",
+    conversationLimit: "This conversation has reached its message limit. Please use the contact link below.",
+    pending: "Your previous request is still processing. Please try again shortly.",
     code: "Preview access code",
     invalidCode: "Enter the correct preview access code and try again.",
     failed: "I couldn’t get an AI reply. Try again or use the contact link below.",
@@ -23,6 +27,10 @@ const translations = {
     ai: "Vista previa · Respuestas con IA",
     live: "Asistente con IA",
     limit: "El chat está ocupado. Intenta más tarde o usa el enlace de contacto.",
+    paused: "Este asistente está pausado. Usa el enlace de contacto de abajo.",
+    monthly: "Este asistente alcanzó su límite mensual de conversaciones. Usa el enlace de contacto de abajo.",
+    conversationLimit: "Esta conversación alcanzó su límite de mensajes. Usa el enlace de contacto de abajo.",
+    pending: "Tu solicitud anterior sigue en proceso. Intenta de nuevo en un momento.",
     code: "Código de acceso a la vista previa",
     invalidCode: "Verifica el código de acceso e inténtalo de nuevo.",
     failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o usa el enlace de contacto.",
@@ -79,6 +87,15 @@ async function start() {
   if (!response.ok) throw new Error("Bot unavailable");
   const bot = await response.json();
   const content = bot[language];
+  const sessionKey = `sakireem-chat-session:${id}:${publicMode ? "public" : "preview"}`;
+  let conversationId = null;
+  try { conversationId = JSON.parse(sessionStorage.getItem(sessionKey) || "null")?.id || null; } catch {}
+  function rememberSession(id) {
+    if (!id) return;
+    if (conversationId && conversationId !== id) history.length = 0;
+    conversationId = id;
+    try { sessionStorage.setItem(sessionKey, JSON.stringify({id})); } catch {}
+  }
 
   document.title = bot.name;
   document.getElementById("business").textContent = bot.name;
@@ -90,8 +107,14 @@ async function start() {
     button.type = "button";
     button.textContent = faq.question;
     button.addEventListener("click", () => {
-      appendMessage(faq.question, true);
-      appendMessage(faq.answer);
+      if (aiEnabled) {
+        if (send.disabled) return;
+        field.value = faq.question;
+        form.requestSubmit();
+      } else {
+        appendMessage(faq.question, true);
+        appendMessage(faq.answer);
+      }
     });
     questions.append(button);
   }
@@ -123,7 +146,7 @@ async function start() {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers,
-          body: JSON.stringify({ bot: id, language, message: question, history: history.slice(-4) })
+          body: JSON.stringify({ bot: id, language, message: question, history: history.slice(-4), conversationId, requestId: crypto.randomUUID() })
         });
         if (hosted && response.status === 401) {
           previewCode = "";
@@ -135,12 +158,19 @@ async function start() {
           codeField.focus();
           return;
         }
-        if (response.status === 429) {
-          appendMessage(copy.limit);
+        const result = await response.json();
+        rememberSession(result.conversationId);
+        if (result.code === "invalid_session") {
+          conversationId = null;
+          history.length = 0;
+          try { sessionStorage.removeItem(sessionKey); } catch {}
+        }
+        if (!response.ok) {
+          const explanation = {bot_paused:copy.paused,monthly_limit:copy.monthly,conversation_limit:copy.conversationLimit,request_pending:copy.pending};
+          appendMessage(explanation[result.code] || (response.status === 429 ? copy.limit : copy.failed));
           return;
         }
-        if (!response.ok) throw new Error("Model request failed");
-        const { reply } = await response.json();
+        const { reply } = result;
         if (hosted) {
           previewCode = headers["X-Chat-Preview-Code"];
           codeField.value = "";

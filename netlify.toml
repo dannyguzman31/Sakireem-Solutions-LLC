@@ -13,3 +13,8 @@
   [headers.values]
     Content-Security-Policy = "frame-ancestors 'self' https://sakireemsolutions.com https://www.sakireemsolutions.com http://localhost:8001"
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/assets/chat/panel.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

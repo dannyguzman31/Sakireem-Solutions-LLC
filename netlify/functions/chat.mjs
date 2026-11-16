@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { getStore } from "@netlify/blobs";
+import { createManager, enforcementEnabled, requestIdentity, statusFor } from "../chat-manager.mjs";
 import { reservePublicReply } from "../public-chat-budget.mjs";
 import sakireem from "../../assets/chat/bots/sakireem.json" with { type: "json" };
 import hvac from "../../assets/chat/bots/hvac-arizona-valley.json" with { type: "json" };
@@ -71,14 +72,38 @@ export default async function chat(request) {
     return json(400, { error: "Invalid chat request" });
   }
 
+  let manager, identity, admission;
+  try {
+    if (enforcementEnabled(publicMode)) {
+      try { identity = requestIdentity(payload); }
+      catch { return json(400, { error: "Invalid request identity", code: "invalid_request" }); }
+      manager = createManager();
+      admission = await manager.admit({bot:id,mode:publicMode ? "public" : "preview",...identity,language,message,history});
+      if (!admission || typeof admission.allowed !== "boolean") throw new Error("Invalid admission result");
+      if (!admission.allowed) return json(statusFor(admission.code), {error: "Chat request not admitted", code:admission.code, conversationId:admission.conversation_id});
+      if (admission.replay) return json(200, {reply:admission.reply,conversationId:admission.conversation_id});
+    }
+  } catch {
+    console.error("Chat manager admission unavailable");
+    return json(503, {error:"Chat temporarily unavailable",code:"manager_unavailable"});
+  }
+  const finish = async (reply, usage) => {
+    if (!manager) return;
+    try { await manager.finish(identity.requestId, reply, usage); }
+    catch { console.error("Chat manager completion record unavailable"); }
+  };
+  const failure = async (status, error, code) => {
+    await finish(null);
+    return json(status,{error,code,conversationId:admission?.conversation_id});
+  };
   if (publicMode) {
     try {
       if (!await reservePublicReply(getStore("public-chat-budget"))) {
-        return json(429, { error: "Daily chat limit reached" });
+        return failure(429, "Daily chat limit reached", "daily_limit");
       }
     } catch {
       console.error("Could not reserve public chat capacity");
-      return json(503, { error: "Chat temporarily unavailable" });
+      return failure(503, "Chat temporarily unavailable", "budget_unavailable");
     }
   }
 
@@ -108,16 +133,18 @@ ${facts}`;
     });
     if (!upstream.ok) {
       console.error("OpenAI request failed", upstream.status, upstream.headers.get("x-request-id"));
-      return json(502, { error: "Model request failed" });
+      return failure(502, "Model request failed", "model_failed");
     }
     const data = await upstream.json();
     const reply = data.output.filter((item) => item.type === "message")
       .flatMap((item) => item.content)
       .filter((part) => part.type === "output_text")
       .map((part) => part.text).join("\n").trim();
-    return reply ? json(200, { reply }) : json(502, { error: "Empty model response" });
+    if (!reply) return failure(502, "Empty model response", "model_failed");
+    await finish(reply, data.usage);
+    return json(200, { reply, conversationId: admission?.conversation_id });
   } catch {
     console.error("OpenAI request could not be completed");
-    return json(502, { error: "Model request failed" });
+    return failure(502, "Model request failed", "model_failed");
   }
 }
