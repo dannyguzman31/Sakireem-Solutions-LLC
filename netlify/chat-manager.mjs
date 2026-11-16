@@ -27,6 +27,7 @@ export function createManager({env=process.env,fetchImpl=fetch}={}){
    p_bot:bot,p_mode:mode,p_session:conversationId,p_request:requestId,
    p_fingerprint:createHash('sha256').update(JSON.stringify({bot,mode,conversationId,language,message,history})).digest('hex')
   }),
+  knowledge:(bot,language)=>rpc('chat_knowledge',{p_bot:bot,p_language:language}),
   finish:(requestId,reply,usage={})=>rpc('chat_finish',{
    p_request:requestId,p_state:reply?'succeeded':'failed',p_reply:reply||null,
    p_input_tokens:Number.isSafeInteger(usage.input_tokens)?usage.input_tokens:0,
