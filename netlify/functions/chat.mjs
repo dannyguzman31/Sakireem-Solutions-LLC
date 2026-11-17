@@ -89,7 +89,7 @@ export default async function chat(request) {
   }
   const finish = async (reply, usage) => {
     if (!manager) return;
-    try { await manager.finish(identity.requestId, reply, usage); }
+    try { await manager.finish(identity.requestId, reply, usage, reply ? message.trim() : null, language); }
     catch { console.error("Chat manager completion record unavailable"); }
   };
   const failure = async (status, error, code) => {

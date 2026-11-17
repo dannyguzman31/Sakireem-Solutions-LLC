@@ -1,5 +1,5 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import { createManager } from "../chat-manager.mjs";
+import { createManager, requestIdentity } from "../chat-manager.mjs";
 
 export const config = {
   path: "/api/chat-leads",
@@ -43,8 +43,11 @@ export default async function submitLead(request) {
         typeof value === "string" && value.trim().length > 0 && value.length <= max && !value.includes("\0")) ||
       !(validEmail(contact.trim()) || validPhone(contact.trim()))) return result(400,"invalid");
   try {
+    let conversationId = null;
+    try { ({conversationId} = requestIdentity({requestId,conversationId:payload.conversationId})); }
+    catch { /* The quote can still be saved without a transcript link. */ }
     const code = await createManager().lead({
-      p_bot:bot, p_request:requestId, p_language:language, p_test:mode === "preview",
+      p_bot:bot, p_request:requestId, p_session:conversationId, p_language:language, p_test:mode === "preview",
       p_name:name.trim(), p_contact:contact.trim(), p_project:project.trim()
     });
     if (code === "saved") return result(200,code);

@@ -29,8 +29,9 @@ export function createManager({env=process.env,fetchImpl=fetch}={}){
   }),
   knowledge:(bot,language)=>rpc('chat_knowledge',{p_bot:bot,p_language:language}),
   passages:(bot,question)=>rpc('chat_source_passages',{p_bot:bot,p_question:question}),
-  lead:(values)=>rpc('chat_submit_lead',values),
-  finish:(requestId,reply,usage={})=>rpc('chat_finish',{
+  lead:(values)=>rpc('chat_submit_linked_lead',values),
+  finish:(requestId,reply,usage={},question=null,language=null)=>rpc('chat_finish_with_transcript',{
+   p_question:question,p_language:language,
    p_request:requestId,p_state:reply?'succeeded':'failed',p_reply:reply||null,
    p_input_tokens:Number.isSafeInteger(usage.input_tokens)?usage.input_tokens:0,
    p_output_tokens:Number.isSafeInteger(usage.output_tokens)?usage.output_tokens:0

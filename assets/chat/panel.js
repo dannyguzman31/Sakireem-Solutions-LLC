@@ -20,6 +20,7 @@ const translations = {
     welcome: name => `Hello, welcome to ${name}.`,
     offerHelp: "How can I assist you today?",
     typing: "Assistant is typing.",
+    transcriptNotice: "If this business enables chat recording, transcripts are kept for 30 days.",
     placeholder: "Type a question",
     send: "Send",
     conversation: "Conversation",
@@ -42,6 +43,7 @@ const translations = {
     welcome: name => `Hola, te damos la bienvenida a ${name}.`,
     offerHelp: "¿En qué puedo ayudarte hoy?",
     typing: "El asistente está escribiendo.",
+    transcriptNotice: "Si este negocio activa el registro de chats, las conversaciones se guardan durante 30 días.",
     placeholder: "Escribe una pregunta",
     send: "Enviar",
     conversation: "Conversación",
@@ -118,8 +120,13 @@ async function start() {
   document.body.style.setProperty("--accent", bot.accent);
   appendMessage(copy.welcome(bot.name));
   appendMessage(copy.offerHelp);
+  if (publicMode || hosted) {
+    const notice = document.createElement("small");
+    notice.textContent = copy.transcriptNotice;
+    messages.append(notice);
+  }
 
-  if ((id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id);
+  if ((id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id, () => conversationId);
 
   for (const action of content.actions) {
     const url = new URL(action.url);
@@ -215,7 +222,7 @@ document.addEventListener("keydown", (event) => {
 });
 start().catch(() => appendMessage(copy.unavailable));
 
-function addQuoteForm(bot) {
+function addQuoteForm(bot, getConversationId) {
   const labels = language === "es" ? {
     title:"Solicitar una cotización en el chat", name:"Nombre", contact:"Correo electrónico o teléfono",
     project:"Cuéntanos sobre tu proyecto", consent:"Acepto que la empresa me contacte sobre esta solicitud.",
@@ -258,7 +265,7 @@ function addQuoteForm(bot) {
   const close = quote.querySelector('[type="button"]');
   const status = quote.querySelector('[role="status"]');
   let sending = false;
-  let previousBody, requestId;
+  let previousBody, requestId, quoteConversationId;
   button.onclick = () => dialog.showModal();
   close.onclick = () => dialog.close();
   dialog.oncancel = event => { if (sending) event.preventDefault(); };
@@ -271,7 +278,10 @@ function addQuoteForm(bot) {
       project:data.get("project").trim(), confirmed:data.has("confirmed")
     };
     const serialized = JSON.stringify(body);
-    if (serialized !== previousBody) requestId = crypto.randomUUID();
+    if (serialized !== previousBody) {
+      requestId = crypto.randomUUID();
+      quoteConversationId = getConversationId();
+    }
     previousBody = serialized;
     sending = true;
     controls.forEach(control => control.disabled = true);
@@ -280,7 +290,7 @@ function addQuoteForm(bot) {
       const headers = {"Content-Type":"application/json","X-Chat-Mode":publicMode ? "public" : "preview"};
       if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
       const response = await fetch("/api/chat-leads", {
-        method:"POST", headers, body:JSON.stringify({...body,requestId}),
+        method:"POST", headers, body:JSON.stringify({...body,requestId,conversationId:quoteConversationId}),
         signal:AbortSignal.timeout(12000)
       });
       if (response.ok && (await response.json()).code === "saved") {
