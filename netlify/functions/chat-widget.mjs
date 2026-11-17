@@ -18,6 +18,33 @@ function safeLink(value, fallback) {
   return fallback;
 }
 
+function panelResponse(html, origin, active) {
+  const chatPolicy = active ? " script-src 'self'; connect-src 'self';" : "";
+  return new Response(html,{headers:{
+    "Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow",
+    "X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin",
+    "Content-Security-Policy":`default-src 'none'; style-src 'self';${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
+  }});
+}
+
+function pausedPanel(widget, language, origin) {
+  const spanish = language === "es";
+  const message = spanish
+    ? "El chat está desactivado por el momento."
+    : "The chat is currently disabled.";
+  const contact = safeLink(widget.contact_url, null);
+  const contactLabel = spanish ? "Contactar al negocio" : "Contact the business";
+  const name = escape(widget.name);
+  const html = `<!doctype html><html lang="${language}"><head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${name}</title><link rel="stylesheet" href="/assets/chat/panel.css"></head><body>
+    <header><h1>${name}</h1></header>
+    <main id="messages"><p class="message">${message}</p></main>
+    ${contact ? `<nav id="actions"><a href="${escape(contact)}" target="_blank" rel="noopener noreferrer">${contactLabel}</a></nav>` : ""}
+    </body></html>`;
+  return panelResponse(html, origin, false);
+}
+
 export default async function showWidget(request) {
   if (request.method !== "GET") return unavailable(405);
   const params = new URL(request.url).searchParams;
@@ -27,7 +54,7 @@ export default async function showWidget(request) {
   if (!managedEnabled(publicMode)) return unavailable(503);
   try {
     const widget = await createManager().widget(bot);
-    if (!widget || (publicMode && (!widget.is_live || !widget.enabled || !validSite(widget.site_origin)))) return unavailable(404);
+    if (!widget || (publicMode && !validSite(widget.site_origin))) return unavailable(404);
     const requested = params.get("lang") === "es" ? "es" : "en";
     const language = !publicMode && !acceptsLanguage(widget,requested) ? null :
       widget.language_mode === "both" ? requested : widget.language_mode;
@@ -36,6 +63,7 @@ export default async function showWidget(request) {
     if (publicMode) {
       try { origin = new URL(request.headers.get("referer")).origin; } catch {}
       if (origin !== widget.site_origin || request.headers.get("sec-fetch-dest") !== "iframe") return unavailable(403);
+      if (!widget.is_live || !widget.enabled) return pausedPanel(widget, language, origin);
     }
     const presentation = {
       name:widget.name,
@@ -56,11 +84,7 @@ export default async function showWidget(request) {
         <input id="preview-code" type="password" maxlength="128" autocomplete="off" hidden>
         <input id="message" type="text" maxlength="350" required><button id="send" type="submit"></button>
       </form><nav id="actions"></nav></body></html>`;
-    return new Response(html,{headers:{
-      "Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow",
-      "X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin",
-      "Content-Security-Policy":`default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
-    }});
+    return panelResponse(html, origin, true);
   } catch {
     console.error("Managed chat widget configuration unavailable");
     return unavailable(503);

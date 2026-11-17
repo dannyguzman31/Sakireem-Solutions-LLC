@@ -18,13 +18,16 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     SUPABASE_URL:"https://test.supabase.co",SUPABASE_SECRET_KEY:secret,OPENAI_API_KEY:"test-key"
   });
   let live=false;
+  let enabled=false;
+  let contact="javascript:alert(1)";
+  let languageMode="es";
   let calls=[];
   globalThis.fetch=async (url, opts) => {
     const args=JSON.parse(opts.body);
     calls.push([url.split("/").at(-1),args]);
     if (url.endsWith("/chat_widget_config")) return Response.json({
-      name:'Client </title><script>x</script>',site_origin:origin,contact_url:"javascript:alert(1)",
-      language_mode:"es",greeting_es:"Hola",is_live:live,enabled:live
+      name:'Client </title><script>x</script>',site_origin:origin,contact_url:contact,
+      language_mode:languageMode,greeting_es:"Hola",is_live:live,enabled
     });
     if (url.endsWith("/chat_admit_widget")) return Response.json({allowed:true,conversation_id:randomUUID()});
     if (url.endsWith("/chat_submit_widget_lead")) return Response.json("saved");
@@ -41,7 +44,13 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     Origin:endpoint,"Content-Type":"application/json","X-Chat-Managed":"1",...headers
   },body:JSON.stringify({bot,language:"es",requestId:randomUUID(),...payload})});
   try {
-    assert.equal((await showWidget(panel())).status,404);
+    const draft=await showWidget(panel());
+    assert.equal(draft.status,200);
+    assert.match(draft.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
+    const draftHtml=await draft.text();
+    assert.match(draftHtml,/El chat está desactivado/);
+    assert.doesNotMatch(draftHtml,/<script|<form|<a[ >]|"ticket"|data-managed-widget/);
+    assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(panel("&preview=hosted"))).status,404);
     const preview=await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es&preview=hosted`));
     assert.equal(preview.status,200);
@@ -53,6 +62,17 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.match(calls.find(([key])=>key==="responses")[1].instructions,/Client/);
 
     live=true;
+    contact="https://business.example/contact?via=chat&lang=es";
+    const paused=await showWidget(panel());
+    const pausedHtml=await paused.text();
+    assert.equal(paused.status,200);
+    assert.match(pausedHtml,/El chat está desactivado/);
+    assert.ok(pausedHtml.includes('href="https://business.example/contact?via=chat&amp;lang=es"'));
+    languageMode="both";
+    assert.match(await (await showWidget(panel())).text(),/The chat is currently disabled/);
+    languageMode="es";
+    enabled=true;
+    contact="javascript:alert(1)";
     assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es`))).status,403);
     const allowed=await showWidget(panel());
