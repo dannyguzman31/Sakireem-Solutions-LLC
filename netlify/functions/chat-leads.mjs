@@ -1,3 +1,4 @@
+import { managedEnabled, ticketOrigin, validSlug } from "../widget-access.mjs";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { createManager, requestIdentity } from "../chat-manager.mjs";
 
@@ -37,11 +38,21 @@ export default async function submitLead(request) {
     return result(400,"invalid");
   }
   const {bot, language, requestId, name, contact, project, confirmed} = payload ?? {};
-  if ((bot !== "sakireem" && !(mode === "preview" && bot === "hvac-arizona-valley")) || !["en","es"].includes(language) || confirmed !== true ||
+  const managed = request.headers.get("X-Chat-Managed") === "1";
+  if (!validSlug(bot) || (!managed && bot !== "sakireem" && !(mode === "preview" && bot === "hvac-arizona-valley")) ||
+      !["en","es"].includes(language) || confirmed !== true ||
       typeof requestId !== "string" || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId) ||
       ![[name,100],[contact,254],[project,1000]].every(([value,max]) =>
         typeof value === "string" && value.trim().length > 0 && value.length <= max && !value.includes("\0")) ||
       !(validEmail(contact.trim()) || validPhone(contact.trim()))) return result(400,"invalid");
+  let widgetAccess;
+  if (managed) {
+    const publicMode = mode === "public";
+    if (!managedEnabled(publicMode)) return result(503,"unavailable");
+    const origin = publicMode ? ticketOrigin(request.headers.get("X-Chat-Widget-Ticket"),bot,language,process.env.SUPABASE_SECRET_KEY?.trim()) : null;
+    if (publicMode && !origin) return result(403,"widget_access");
+    widgetAccess = {origin};
+  }
   try {
     let conversationId = null;
     try { ({conversationId} = requestIdentity({requestId,conversationId:payload.conversationId})); }
@@ -49,7 +60,7 @@ export default async function submitLead(request) {
     const code = await createManager().lead({
       p_bot:bot, p_request:requestId, p_session:conversationId, p_language:language, p_test:mode === "preview",
       p_name:name.trim(), p_contact:contact.trim(), p_project:project.trim()
-    });
+    },widgetAccess);
     if (code === "saved") return result(200,code);
     if (code === "conflict") return result(409,code);
     if (code === "paused") return result(403,code);

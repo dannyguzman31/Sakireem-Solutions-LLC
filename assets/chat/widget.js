@@ -8,7 +8,8 @@
     : 'en';
   const panelFile =
     script.dataset.chatMode === 'public' ? 'panel-public.html' : 'panel.html';
-  const panelUrl = new URL(panelFile, script.src);
+  const managed = script.dataset.chatMode === 'managed';
+  const panelUrl = new URL(managed ? '/api/chat-widget' : panelFile, script.src);
   const options = new URLSearchParams({ bot, lang: language });
   if (script.dataset.preview === 'hosted') options.set('preview', 'hosted');
   panelUrl.search = options;
@@ -29,6 +30,7 @@
   panel.id = 'chat-panel';
   panel.title = language === 'es' ? 'Asistente de chat' : 'Chat assistant';
   panel.hidden = true;
+  if (managed) panel.referrerPolicy = 'origin';
 
   function setOpen(open) {
     if (open && !panel.hasAttribute('src')) panel.src = panelUrl.href;

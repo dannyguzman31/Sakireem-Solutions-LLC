@@ -1,5 +1,6 @@
 const params = new URLSearchParams(location.search);
-const language = params.get("lang") === "es" ? "es" : "en";
+const managed = document.body.dataset.managedWidget ? JSON.parse(document.body.dataset.managedWidget) : null;
+const language = (managed?.language || params.get("lang")) === "es" ? "es" : "en";
 document.documentElement.lang = language;
 
 const translations = {
@@ -19,6 +20,7 @@ const translations = {
     fallback: "I don’t have an answer for that question. Please use the contact links below.",
     welcome: name => `Hello, welcome to ${name}.`,
     offerHelp: "How can I assist you today?",
+    contactBusiness: "Contact the business",
     typing: "Assistant is typing.",
     transcriptNotice: "If this business enables chat recording, transcripts are kept for 30 days.",
     placeholder: "Type a question",
@@ -42,6 +44,7 @@ const translations = {
     fallback: "No tengo una respuesta para esa pregunta. Usa los enlaces de contacto de abajo.",
     welcome: name => `Hola, te damos la bienvenida a ${name}.`,
     offerHelp: "¿En qué puedo ayudarte hoy?",
+    contactBusiness: "Contactar a la empresa",
     typing: "El asistente está escribiendo.",
     transcriptNotice: "Si este negocio activa el registro de chats, las conversaciones se guardan durante 30 días.",
     placeholder: "Escribe una pregunta",
@@ -57,7 +60,7 @@ const actions = document.getElementById("actions");
 const form = document.getElementById("message-form");
 const field = document.getElementById("message");
 const send = document.getElementById("send");
-const publicMode = location.pathname.endsWith("/panel-public.html");
+const publicMode = managed?.publicMode ?? location.pathname.endsWith("/panel-public.html");
 const hosted = !publicMode && params.get("preview") === "hosted";
 const aiEnabled = publicMode || hosted || (["localhost", "127.0.0.1"].includes(location.hostname) && location.port === "8000");
 const codeField = document.getElementById("preview-code");
@@ -100,11 +103,14 @@ function normalize(text) {
 
 async function start() {
   const id = params.get("bot") || "";
-  if (!/^[a-z0-9-]{1,60}$/.test(id)) throw new Error("Invalid bot ID");
-  const response = await fetch(`bots/${id}.json`);
-  if (!response.ok) throw new Error("Bot unavailable");
-  const bot = await response.json();
-  const content = bot[language];
+  if (id.length > 100 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Invalid bot ID");
+  let bot = managed;
+  if (!bot) {
+    const response = await fetch(`bots/${id}.json`);
+    if (!response.ok) throw new Error("Bot unavailable");
+    bot = await response.json();
+  }
+  const content = managed ? {actions:managed.link ? [{label:copy.contactBusiness,url:managed.link}] : []} : bot[language];
   const sessionKey = `sakireem-chat-session:${id}:${publicMode ? "public" : "preview"}`;
   let conversationId = null;
   try { conversationId = JSON.parse(sessionStorage.getItem(sessionKey) || "null")?.id || null; } catch {}
@@ -117,16 +123,16 @@ async function start() {
 
   document.title = bot.name;
   document.getElementById("business").textContent = bot.name;
-  document.body.style.setProperty("--accent", bot.accent);
-  appendMessage(copy.welcome(bot.name));
-  appendMessage(copy.offerHelp);
+  if (bot.accent) document.body.style.setProperty("--accent", bot.accent);
+  appendMessage(managed?.greeting || copy.welcome(bot.name));
+  if (!managed?.greeting) appendMessage(copy.offerHelp);
   if (publicMode || hosted) {
     const notice = document.createElement("small");
     notice.textContent = copy.transcriptNotice;
     messages.append(notice);
   }
 
-  if ((id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id, () => conversationId);
+  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id, () => conversationId);
 
   for (const action of content.actions) {
     const url = new URL(action.url);
@@ -159,6 +165,7 @@ async function start() {
       try {
         const headers = { "Content-Type": "application/json" };
         if (publicMode) headers["X-Chat-Mode"] = "public";
+        addManagedHeaders(headers);
         if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -221,6 +228,12 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") window.parent.postMessage("sakireem-chat-close", "*");
 });
 start().catch(() => appendMessage(copy.unavailable));
+
+function addManagedHeaders(headers) {
+  if (!managed) return;
+  headers["X-Chat-Managed"] = "1";
+  if (managed.ticket) headers["X-Chat-Widget-Ticket"] = managed.ticket;
+}
 
 function addQuoteForm(bot, getConversationId) {
   const labels = language === "es" ? {
@@ -289,6 +302,7 @@ function addQuoteForm(bot, getConversationId) {
     try {
       const headers = {"Content-Type":"application/json","X-Chat-Mode":publicMode ? "public" : "preview"};
       if (hosted) headers["X-Chat-Preview-Code"] = previewCode || codeField.value.trim();
+      addManagedHeaders(headers);
       const response = await fetch("/api/chat-leads", {
         method:"POST", headers, body:JSON.stringify({...body,requestId,conversationId:quoteConversationId}),
         signal:AbortSignal.timeout(12000)

@@ -23,13 +23,17 @@ export function createManager({env=process.env,fetchImpl=fetch}={}){
   return response.json();
  }
  return {
-  admit:({bot,mode,conversationId,requestId,language,message,history})=>rpc('chat_admit',{
+  admit:({bot,mode,conversationId,requestId,language,message,history,widgetAccess})=>rpc(widgetAccess ? 'chat_admit_widget' : 'chat_admit',{
    p_bot:bot,p_mode:mode,p_session:conversationId,p_request:requestId,
-   p_fingerprint:createHash('sha256').update(JSON.stringify({bot,mode,conversationId,language,message,history})).digest('hex')
+   p_fingerprint:createHash('sha256').update(JSON.stringify({bot,mode,conversationId,language,message,history})).digest('hex'),
+   ...(widgetAccess ? {p_language:language,p_origin:widgetAccess.origin} : {})
   }),
   knowledge:(bot,language)=>rpc('chat_knowledge',{p_bot:bot,p_language:language}),
   passages:(bot,question)=>rpc('chat_source_passages',{p_bot:bot,p_question:question}),
-  lead:(values)=>rpc('chat_submit_linked_lead',values),
+  widget:(bot)=>rpc('chat_widget_config',{p_bot:bot}),
+  lead:(values,widgetAccess)=>widgetAccess
+    ? rpc('chat_submit_widget_lead',{...values,p_origin:widgetAccess.origin})
+    : rpc('chat_submit_linked_lead',values),
   finish:(requestId,reply,usage={},question=null,language=null)=>rpc('chat_finish_with_transcript',{
    p_question:question,p_language:language,
    p_request:requestId,p_state:reply?'succeeded':'failed',p_reply:reply||null,
