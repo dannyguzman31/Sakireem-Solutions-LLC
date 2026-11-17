@@ -132,8 +132,16 @@ async function start() {
     messages.append(notice);
   }
 
-  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addRequestForm(id, () => conversationId);
-  if (managed?.serviceVisit) addRequestForm(id, () => conversationId, "service_visit");
+  let requestActions = actions;
+  if (managed) {
+    requestActions = document.createElement("div");
+    requestActions.className = "request-actions";
+    actions.prepend(requestActions);
+  }
+  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) {
+    addRequestForm(id, () => conversationId, requestActions);
+  }
+  if (managed?.serviceVisit) addRequestForm(id, () => conversationId, requestActions, "service_visit");
 
   for (const action of content.actions) {
     const url = new URL(action.url);
@@ -236,7 +244,7 @@ function addManagedHeaders(headers) {
   if (managed.ticket) headers["X-Chat-Widget-Ticket"] = managed.ticket;
 }
 
-function addRequestForm(bot, getConversationId, kind = "quote") {
+function addRequestForm(bot, getConversationId, requestActions, kind = "quote") {
   const visit = kind === "service_visit";
   const phoneMode = managed?.phoneMode;
   const addressMode = managed?.addressMode;
@@ -271,8 +279,10 @@ function addRequestForm(bot, getConversationId, kind = "quote") {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "quote-open";
-  button.textContent = labels.title;
-  actions.prepend(button);
+  button.textContent = !managed ? labels.title : language === "es"
+    ? (visit ? "Solicitar visita" : "Pedir cotización")
+    : (visit ? "Request a service visit" : "Request a quote");
+  requestActions.prepend(button);
 
   const dialog = document.createElement("dialog");
   dialog.className = "quote-dialog";

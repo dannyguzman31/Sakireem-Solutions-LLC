@@ -19,3 +19,10 @@ body.managed-panel {
   text-align: center; padding: 3px 8px 8px; font-size: 12px; line-height: 1.3;
 }
 .managed-panel .brand-credit a { padding: 2px; }
+
+.managed-panel .request-actions {
+  display: flex; flex-wrap: wrap; flex-basis: 100%; gap: 6px;
+}
+.managed-panel .request-actions .quote-open {
+  padding: 5px 9px; font-size: 13px; min-height: 36px; line-height: 1.25;
+}

@@ -77,6 +77,13 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es`))).status,403);
     brand={brand_accent:'#f0bd4a',brand_logo_url:'https://images.example/logo.png?x=1&y=2'};
+    const launcher=(host)=>showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&asset=launcher`,{
+      headers:{Referer:host+"/","Sec-Fetch-Dest":"style"}
+    }));
+    const css=await launcher(origin);
+    assert.match(css.headers.get("Content-Type"),/^text\/css/);
+    assert.equal(await css.text(),"button{background:#f0bd4a;color:#000}");
+    assert.equal(await (await launcher("https://wrong.example")).text(),"");
     const allowed=await showWidget(panel());
     assert.equal(allowed.status,200);
     assert.match(allowed.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
@@ -88,6 +95,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.match(html,/logo\.png\?x=1&amp;y=2/);
     assert.match(html,/Con tecnología de Sakireem/);
     brand={brand_badge_hidden:true,brand_logo_url:'https://evil.example;bad/logo',brand_accent:'#fff;bad'};
+    assert.equal(await (await launcher(origin)).text(),"");
     const agency=await showWidget(panel());
     assert.doesNotMatch(agency.headers.get("Content-Security-Policy"),/img-src|nonce-/);
     assert.doesNotMatch(await agency.text(),/brand-credit|evil\.example|<style nonce/);

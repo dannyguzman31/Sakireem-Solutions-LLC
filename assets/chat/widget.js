@@ -61,6 +61,16 @@
     }
   });
 
-  root.append(stylesheet, panel, button);
+  root.append(stylesheet);
+  if (managed) {
+    const theme = document.createElement('link');
+    const themeUrl = new URL(panelUrl);
+    themeUrl.search = new URLSearchParams({bot,asset:'launcher'});
+    theme.rel = 'stylesheet';
+    theme.referrerPolicy = 'origin';
+    theme.href = themeUrl.href;
+    root.append(theme);
+  }
+  root.append(panel, button);
   document.body.append(host);
 })();

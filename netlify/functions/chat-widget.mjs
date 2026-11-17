@@ -19,24 +19,39 @@ function safeLink(value, fallback) {
   return fallback;
 }
 
+function accentTheme(value) {
+  if (!/^#[0-9a-f]{6}$/i.test(value)) return null;
+  const channels = value.slice(1).match(/../g).map(channel => {
+    const srgb = parseInt(channel,16)/255;
+    return srgb <= .04045 ? srgb/12.92 : ((srgb+.055)/1.055)**2.4;
+  });
+  const luminance = channels[0]*.2126 + channels[1]*.7152 + channels[2]*.0722;
+  return {accent:value,foreground:luminance > .179 ? "#000" : "#fff",link:luminance <= .179 ? value : "#15304a"};
+}
+
+function referringOrigin(request) {
+  try { return new URL(request.headers.get("referer")).origin; }
+  catch { return null; }
+}
+
+function launcherStyle(request, widget) {
+  const theme = validSite(widget.site_origin) && referringOrigin(request) === widget.site_origin
+    ? accentTheme(widget.brand_accent) : null;
+  const css = theme ? `button{background:${theme.accent};color:${theme.foreground}}` : "";
+  return new Response(css,{headers:{
+    "Content-Type":"text/css; charset=utf-8","Cache-Control":"no-store",
+    "X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"cross-origin"
+  }});
+}
+
 function panelBranding(widget, language) {
   const candidate = safeLink(widget.brand_logo_url, null);
   const origin = candidate ? new URL(candidate).origin : null;
   const imageSource = /^https:\/\/(?:[a-z0-9-]+\.)+[a-z][a-z0-9-]*$/i.test(origin) ? origin : null;
   const logo = imageSource ? candidate : null;
-  const accent = /^#[0-9a-f]{6}$/i.test(widget.brand_accent) ? widget.brand_accent : null;
-  const nonce = accent ? randomBytes(16).toString("base64") : null;
-  let style = "";
-  if (accent) {
-    const channels = accent.slice(1).match(/../g).map(channel => {
-      const value = parseInt(channel,16)/255;
-      return value <= .04045 ? value/12.92 : ((value+.055)/1.055)**2.4;
-    });
-    const luminance = channels[0]*.2126 + channels[1]*.7152 + channels[2]*.0722;
-    const foreground = luminance > .179 ? "#000" : "#fff";
-    const link = luminance <= .179 ? accent : "#15304a";
-    style = `<style nonce="${nonce}">body.managed-panel{--accent:${accent};--brand-on-accent:${foreground};--brand-link:${link}}</style>`;
-  }
+  const theme = accentTheme(widget.brand_accent);
+  const nonce = theme ? randomBytes(16).toString("base64") : null;
+  const style = theme ? `<style nonce="${nonce}">body.managed-panel{--accent:${theme.accent};--brand-on-accent:${theme.foreground};--brand-link:${theme.link}}</style>` : "";
   const logoMarkup = logo ? `<img src="${escape(logo)}" alt="" width="36" height="36" referrerpolicy="no-referrer">` : "";
   const badgeLabel = language === "es" ? "Con tecnología de Sakireem" : "Powered by Sakireem";
   const badge = widget.brand_badge_hidden === true ? "" :
@@ -78,19 +93,21 @@ export default async function showWidget(request) {
   if (request.method !== "GET") return unavailable(405);
   const params = new URL(request.url).searchParams;
   const bot = params.get("bot");
-  const publicMode = params.get("preview") !== "hosted";
+  const launcher = params.get("asset") === "launcher";
+  const publicMode = launcher || params.get("preview") !== "hosted";
   if (!validSlug(bot)) return unavailable(404);
   if (!managedEnabled(publicMode)) return unavailable(503);
   try {
     const widget = await createManager().widget(bot);
     if (!widget || (publicMode && !validSite(widget.site_origin))) return unavailable(404);
+    if (launcher) return launcherStyle(request,widget);
     const requested = params.get("lang") === "es" ? "es" : "en";
     const language = !publicMode && !acceptsLanguage(widget,requested) ? null :
       widget.language_mode === "both" ? requested : widget.language_mode;
     if (!acceptsLanguage(widget,language)) return unavailable(404,"This preview language is disabled.");
     let origin = null;
     if (publicMode) {
-      try { origin = new URL(request.headers.get("referer")).origin; } catch {}
+      origin = referringOrigin(request);
       if (origin !== widget.site_origin || request.headers.get("sec-fetch-dest") !== "iframe") return unavailable(403);
     }
     const branding = panelBranding(widget, language);
