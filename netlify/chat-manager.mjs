@@ -32,7 +32,7 @@ export function createManager({env=process.env,fetchImpl=fetch}={}){
   passages:(bot,question)=>rpc('chat_source_passages',{p_bot:bot,p_question:question}),
   widget:(bot)=>rpc('chat_widget_config',{p_bot:bot}),
   lead:(values,widgetAccess)=>widgetAccess
-    ? rpc('chat_submit_widget_lead',{...values,p_origin:widgetAccess.origin})
+    ? rpc('chat_submit_widget_intake',{...values,p_origin:widgetAccess.origin})
     : rpc('chat_submit_linked_lead',values),
   finish:(requestId,reply,usage={},question=null,language=null)=>rpc('chat_finish_with_transcript',{
    p_question:question,p_language:language,

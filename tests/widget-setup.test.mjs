@@ -30,7 +30,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
       language_mode:languageMode,greeting_es:"Hola",is_live:live,enabled
     });
     if (url.endsWith("/chat_admit_widget")) return Response.json({allowed:true,conversation_id:randomUUID()});
-    if (url.endsWith("/chat_submit_widget_lead")) return Response.json("saved");
+    if (url.endsWith("/chat_submit_widget_intake")) return Response.json("saved");
     if (url.endsWith("/chat_knowledge")) return Response.json(null);
     if (url.endsWith("/chat_source_passages")) return Response.json([]);
     if (url.endsWith("/chat_finish_with_transcript")) return Response.json(true);
@@ -91,9 +91,9 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     const lead={name:"Client",contact:"client@example.com",project:"Estimate",confirmed:true};
     assert.equal((await submitLead(post("/api/chat-leads",lead,{"X-Chat-Mode":"public"}))).status,403);
     assert.equal((await submitLead(post("/api/chat-leads",lead,{"X-Chat-Mode":"public","X-Chat-Widget-Ticket":ticket}))).status,200);
-    assert.ok(calls.some(([key,args])=>key==="chat_submit_widget_lead" && args.p_origin===origin && !args.p_test));
+    assert.ok(calls.some(([key,args])=>key==="chat_submit_widget_intake" && args.p_origin===origin && !args.p_test));
     assert.equal((await submitLead(post("/api/chat-leads",lead,{"X-Chat-Mode":"preview","X-Chat-Preview-Code":"code"}))).status,200);
-    assert.ok(calls.some(([key,args])=>key==="chat_submit_widget_lead" && args.p_origin===null && args.p_test));
+    assert.ok(calls.some(([key,args])=>key==="chat_submit_widget_intake" && args.p_origin===null && args.p_test));
     process.env.CHAT_MANAGER_MODE="preview";
     assert.equal((await showWidget(panel())).status,503);
   } finally {

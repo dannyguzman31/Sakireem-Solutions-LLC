@@ -132,7 +132,8 @@ async function start() {
     messages.append(notice);
   }
 
-  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addQuoteForm(id, () => conversationId);
+  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) addRequestForm(id, () => conversationId);
+  if (managed?.serviceVisit) addRequestForm(id, () => conversationId, "service_visit");
 
   for (const action of content.actions) {
     const url = new URL(action.url);
@@ -235,21 +236,35 @@ function addManagedHeaders(headers) {
   if (managed.ticket) headers["X-Chat-Widget-Ticket"] = managed.ticket;
 }
 
-function addQuoteForm(bot, getConversationId) {
+function addRequestForm(bot, getConversationId, kind = "quote") {
+  const visit = kind === "service_visit";
+  const phoneMode = managed?.phoneMode;
+  const addressMode = managed?.addressMode;
+  const showPhone = phoneMode === "optional" || phoneMode === "required";
+  const showAddress = addressMode === "optional" || addressMode === "required";
+  const titleId = `request-title-${kind}`;
   const labels = language === "es" ? {
-    title:"Solicitar una cotización en el chat", name:"Nombre", contact:"Correo electrónico o teléfono",
+    title:visit ? "Solicitar una visita de servicio" : "Solicitar una cotización en el chat",
+    name:"Nombre", contact:"Correo electrónico o teléfono", email:"Correo electrónico",
+    phone:"Número de teléfono", address:"Dirección del servicio", time:"Día y horario preferidos",
+    timeExample:"Por ejemplo, martes por la mañana (hora local del negocio)",
+    visitNote:"La empresa se comunicará contigo para confirmar el horario.",
     project:"Cuéntanos sobre tu proyecto", consent:"Acepto que la empresa me contacte sobre esta solicitud.",
-    close:"Cerrar", send:"Enviar solicitud", sent:"Recibimos tu solicitud. Gracias.",
+    close:"Cerrar", send:"Enviar solicitud", sent:visit ? "Recibimos tu solicitud. Nos comunicaremos contigo para confirmar." : "Recibimos tu solicitud. Gracias.",
     test:"Vista previa: esta solicitud se marcará como prueba.",
-    invalid:"Revisa tus datos. Ingresa un correo o teléfono válido.",
+    invalid:"Revisa tus datos de contacto y completa los campos obligatorios.",
     code:"Ingresa el código correcto en el chat y vuelve a intentarlo.",
     retry:"No pudimos confirmar el envío. Intenta de nuevo o usa el enlace de contacto del chat."
   } : {
-    title:"Request a quote in chat", name:"Name", contact:"Email or phone",
+    title:visit ? "Request a service visit" : "Request a quote in chat",
+    name:"Name", contact:"Email or phone", email:"Email address",
+    phone:"Phone number", address:"Service address", time:"Preferred day and time",
+    timeExample:"For example, Tuesday morning (business local time)",
+    visitNote:"The business will contact you to confirm a time.",
     project:"Tell us about your project", consent:"I agree that the business may contact me about this request.",
-    close:"Close", send:"Send request", sent:"We received your request. Thank you.",
+    close:"Close", send:"Send request", sent:visit ? "Request received. We’ll contact you to confirm." : "We received your request. Thank you.",
     test:"Preview: this request will be marked as a test.",
-    invalid:"Check your details. Enter a valid email or phone number.",
+    invalid:"Check your contact details and complete the required fields.",
     code:"Enter the correct preview code in the chat and try again.",
     retry:"We couldn’t confirm your submission. Try again or use the chat’s contact link."
   };
@@ -261,12 +276,16 @@ function addQuoteForm(bot, getConversationId) {
 
   const dialog = document.createElement("dialog");
   dialog.className = "quote-dialog";
-  dialog.setAttribute("aria-labelledby","quote-title");
+  dialog.setAttribute("aria-labelledby",titleId);
   dialog.innerHTML = `<form>
-    <h2 id="quote-title">${labels.title}</h2>
+    <h2 id="${titleId}">${labels.title}</h2>
     ${hosted ? `<p>${labels.test}</p>` : ""}
     <label>${labels.name}<input name="name" autocomplete="name" maxlength="100" required></label>
-    <label>${labels.contact}<input name="contact" maxlength="254" required></label>
+    ${visit ? `<p>${labels.visitNote}</p>` : ""}
+    <label>${phoneMode ? labels.email : labels.contact}<input name="contact" ${phoneMode ? 'type="email" autocomplete="email"' : ""} maxlength="254" ${showPhone && phoneMode === "required" ? "" : "required"}></label>
+    ${showPhone ? `<label>${labels.phone}<input name="phone" type="tel" autocomplete="tel" maxlength="50" ${phoneMode === "required" ? "required" : ""}></label>` : ""}
+    ${showAddress ? `<label>${labels.address}<textarea name="address" autocomplete="street-address" rows="2" maxlength="350" ${addressMode === "required" ? "required" : ""}></textarea></label>` : ""}
+    ${visit ? `<label>${labels.time}<input name="preferredTime" placeholder="${labels.timeExample}" maxlength="160" required></label>` : ""}
     <label>${labels.project}<textarea name="project" rows="3" maxlength="1000" required></textarea></label>
     <label class="quote-consent"><input name="confirmed" type="checkbox" required> ${labels.consent}</label>
     <p role="status" aria-live="polite"></p>
@@ -275,6 +294,10 @@ function addQuoteForm(bot, getConversationId) {
   document.body.append(dialog);
   const quote = dialog.querySelector("form");
   const controls = [...quote.elements];
+  const syncContact = () => {
+    if (phoneMode === "optional") quote.elements.contact.required = !quote.elements.phone.value.trim();
+  };
+  if (phoneMode === "optional") quote.elements.phone.addEventListener("input",syncContact);
   const close = quote.querySelector('[type="button"]');
   const status = quote.querySelector('[role="status"]');
   let sending = false;
@@ -288,7 +311,9 @@ function addQuoteForm(bot, getConversationId) {
     const data = new FormData(quote);
     const body = {
       bot, language, name:data.get("name").trim(), contact:data.get("contact").trim(),
-      project:data.get("project").trim(), confirmed:data.has("confirmed")
+      project:data.get("project").trim(), confirmed:data.has("confirmed"),
+      ...(managed ? {kind,phone:data.get("phone")?.trim() || "",address:data.get("address")?.trim() || "",
+        preferredTime:data.get("preferredTime")?.trim() || ""} : {})
     };
     const serialized = JSON.stringify(body);
     if (serialized !== previousBody) {
@@ -309,6 +334,7 @@ function addQuoteForm(bot, getConversationId) {
       });
       if (response.ok && (await response.json()).code === "saved") {
         quote.reset();
+        syncContact();
         previousBody = undefined;
         status.textContent = labels.sent;
         appendMessage(labels.sent);

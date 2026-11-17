@@ -71,6 +71,9 @@ export default async function showWidget(request) {
       link:safeLink(widget.contact_url,widget.site_origin),
       language,
       publicMode,
+      phoneMode:widget.phone_mode,
+      addressMode:widget.address_mode,
+      serviceVisit:widget.service_visit_enabled === true,
       ticket:publicMode ? widgetTicket(bot,language,origin,process.env.SUPABASE_SECRET_KEY.trim()) : null
     };
     const html = `<!doctype html><html lang="${language}"><head>
