@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { createManager } from "../chat-manager.mjs";
 import { acceptsLanguage, managedEnabled, validSite, validSlug, widgetTicket } from "../widget-access.mjs";
 
@@ -18,16 +19,44 @@ function safeLink(value, fallback) {
   return fallback;
 }
 
-function panelResponse(html, origin, active) {
+function panelBranding(widget, language) {
+  const candidate = safeLink(widget.brand_logo_url, null);
+  const origin = candidate ? new URL(candidate).origin : null;
+  const imageSource = /^https:\/\/(?:[a-z0-9-]+\.)+[a-z][a-z0-9-]*$/i.test(origin) ? origin : null;
+  const logo = imageSource ? candidate : null;
+  const accent = /^#[0-9a-f]{6}$/i.test(widget.brand_accent) ? widget.brand_accent : null;
+  const nonce = accent ? randomBytes(16).toString("base64") : null;
+  let style = "";
+  if (accent) {
+    const channels = accent.slice(1).match(/../g).map(channel => {
+      const value = parseInt(channel,16)/255;
+      return value <= .04045 ? value/12.92 : ((value+.055)/1.055)**2.4;
+    });
+    const luminance = channels[0]*.2126 + channels[1]*.7152 + channels[2]*.0722;
+    const foreground = luminance > .179 ? "#000" : "#fff";
+    const link = luminance <= .179 ? accent : "#15304a";
+    style = `<style nonce="${nonce}">body.managed-panel{--accent:${accent};--brand-on-accent:${foreground};--brand-link:${link}}</style>`;
+  }
+  const logoMarkup = logo ? `<img src="${escape(logo)}" alt="" width="36" height="36" referrerpolicy="no-referrer">` : "";
+  const badgeLabel = language === "es" ? "Con tecnología de Sakireem" : "Powered by Sakireem";
+  const badge = widget.brand_badge_hidden === true ? "" :
+    `<footer class="brand-credit"><a href="https://sakireemsolutions.com/" target="_blank" rel="noopener noreferrer">${badgeLabel}</a></footer>`;
+  const head = `<link rel="stylesheet" href="/assets/chat/panel.css"><link rel="stylesheet" href="/assets/chat/branding.css">${style}`;
+  return {head,logoMarkup,badge,nonce,imageSource};
+}
+
+function panelResponse(html, origin, active, branding) {
   const chatPolicy = active ? " script-src 'self'; connect-src 'self';" : "";
+  const styleNonce = branding.nonce ? ` 'nonce-${branding.nonce}'` : "";
+  const imagePolicy = branding.imageSource ? ` img-src ${branding.imageSource};` : "";
   return new Response(html,{headers:{
     "Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow",
     "X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin",
-    "Content-Security-Policy":`default-src 'none'; style-src 'self';${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
+    "Content-Security-Policy":`default-src 'none'; style-src 'self'${styleNonce};${imagePolicy}${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
   }});
 }
 
-function pausedPanel(widget, language, origin) {
+function pausedPanel(widget, language, origin, branding) {
   const spanish = language === "es";
   const message = spanish
     ? "El chat está desactivado por el momento."
@@ -37,12 +66,12 @@ function pausedPanel(widget, language, origin) {
   const name = escape(widget.name);
   const html = `<!doctype html><html lang="${language}"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${name}</title><link rel="stylesheet" href="/assets/chat/panel.css"></head><body>
-    <header><h1>${name}</h1></header>
+    <title>${name}</title>${branding.head}</head><body class="managed-panel">
+    <header class="brand-header">${branding.logoMarkup}<h1>${name}</h1></header>
     <main id="messages"><p class="message">${message}</p></main>
     ${contact ? `<nav id="actions"><a href="${escape(contact)}" target="_blank" rel="noopener noreferrer">${contactLabel}</a></nav>` : ""}
-    </body></html>`;
-  return panelResponse(html, origin, false);
+    ${branding.badge}</body></html>`;
+  return panelResponse(html, origin, false, branding);
 }
 
 export default async function showWidget(request) {
@@ -63,8 +92,9 @@ export default async function showWidget(request) {
     if (publicMode) {
       try { origin = new URL(request.headers.get("referer")).origin; } catch {}
       if (origin !== widget.site_origin || request.headers.get("sec-fetch-dest") !== "iframe") return unavailable(403);
-      if (!widget.is_live || !widget.enabled) return pausedPanel(widget, language, origin);
     }
+    const branding = panelBranding(widget, language);
+    if (publicMode && (!widget.is_live || !widget.enabled)) return pausedPanel(widget, language, origin, branding);
     const presentation = {
       name:widget.name,
       greeting:language === "es" ? widget.greeting_es : widget.greeting_en,
@@ -78,16 +108,16 @@ export default async function showWidget(request) {
     };
     const html = `<!doctype html><html lang="${language}"><head>
       <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>${escape(widget.name)}</title><link rel="stylesheet" href="/assets/chat/panel.css">
+      <title>${escape(widget.name)}</title>${branding.head}
       <script src="/assets/chat/panel.js" defer></script></head>
-      <body data-managed-widget="${escape(JSON.stringify(presentation))}">
-      <header><h1 id="business"></h1><p id="preview"></p></header>
+      <body class="managed-panel" data-managed-widget="${escape(JSON.stringify(presentation))}">
+      <header class="brand-header">${branding.logoMarkup}<div><h1 id="business"></h1><p id="preview"></p></div></header>
       <div id="messages" role="log" aria-live="polite"></div><div id="questions"></div>
       <form id="message-form" hidden>
         <input id="preview-code" type="password" maxlength="128" autocomplete="off" hidden>
         <input id="message" type="text" maxlength="350" required><button id="send" type="submit"></button>
-      </form><nav id="actions"></nav></body></html>`;
-    return panelResponse(html, origin, true);
+      </form><nav id="actions"></nav>${branding.badge}</body></html>`;
+    return panelResponse(html, origin, true, branding);
   } catch {
     console.error("Managed chat widget configuration unavailable");
     return unavailable(503);

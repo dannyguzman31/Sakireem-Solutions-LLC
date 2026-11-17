@@ -21,13 +21,14 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
   let enabled=false;
   let contact="javascript:alert(1)";
   let languageMode="es";
+  let brand={};
   let calls=[];
   globalThis.fetch=async (url, opts) => {
     const args=JSON.parse(opts.body);
     calls.push([url.split("/").at(-1),args]);
     if (url.endsWith("/chat_widget_config")) return Response.json({
       name:'Client </title><script>x</script>',site_origin:origin,contact_url:contact,
-      language_mode:languageMode,greeting_es:"Hola",is_live:live,enabled
+      language_mode:languageMode,greeting_es:"Hola",is_live:live,enabled,...brand
     });
     if (url.endsWith("/chat_admit_widget")) return Response.json({allowed:true,conversation_id:randomUUID()});
     if (url.endsWith("/chat_submit_widget_intake")) return Response.json("saved");
@@ -49,7 +50,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.match(draft.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
     const draftHtml=await draft.text();
     assert.match(draftHtml,/El chat está desactivado/);
-    assert.doesNotMatch(draftHtml,/<script|<form|<a[ >]|"ticket"|data-managed-widget/);
+    assert.doesNotMatch(draftHtml,/<script|<form|<nav id="actions"|"ticket"|data-managed-widget/);
     assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(panel("&preview=hosted"))).status,404);
     const preview=await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es&preview=hosted`));
@@ -75,10 +76,22 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     contact="javascript:alert(1)";
     assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es`))).status,403);
+    brand={brand_accent:'#f0bd4a',brand_logo_url:'https://images.example/logo.png?x=1&y=2'};
     const allowed=await showWidget(panel());
     assert.equal(allowed.status,200);
     assert.match(allowed.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
     const html=await allowed.text();
+    const themeNonce=html.match(/<style nonce="([^"]+)"/)[1];
+    assert.ok(allowed.headers.get("Content-Security-Policy").includes(`'nonce-${themeNonce}'`));
+    assert.match(allowed.headers.get("Content-Security-Policy"),/img-src https:\/\/images\.example;/);
+    assert.match(html,/--accent:#f0bd4a;--brand-on-accent:#000/);
+    assert.match(html,/logo\.png\?x=1&amp;y=2/);
+    assert.match(html,/Con tecnología de Sakireem/);
+    brand={brand_badge_hidden:true,brand_logo_url:'https://evil.example;bad/logo',brand_accent:'#fff;bad'};
+    const agency=await showWidget(panel());
+    assert.doesNotMatch(agency.headers.get("Content-Security-Policy"),/img-src|nonce-/);
+    assert.doesNotMatch(await agency.text(),/brand-credit|evil\.example|<style nonce/);
+
     assert.match(html,/<html lang="es">/);
     assert.match(html,/&lt;\/title&gt;&lt;script&gt;/);
     assert.equal(html.includes("javascript:"),false);
