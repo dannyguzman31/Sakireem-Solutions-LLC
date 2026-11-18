@@ -68,7 +68,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     const pausedHtml=await paused.text();
     assert.equal(paused.status,200);
     assert.match(pausedHtml,/El chat está desactivado/);
-    assert.ok(pausedHtml.includes('href="https://business.example/contact?via=chat&amp;lang=es"'));
+    assert.doesNotMatch(pausedHtml,/via=chat|Contactar al negocio/);
     languageMode="both";
     assert.match(await (await showWidget(panel())).text(),/The chat is currently disabled/);
     languageMode="es";
@@ -82,12 +82,14 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     }));
     const css=await launcher(origin);
     assert.match(css.headers.get("Content-Type"),/^text\/css/);
-    assert.equal(await css.text(),"button{background:#f0bd4a;color:#000}");
+    assert.equal(await css.text(),".chat-launcher{background:#f0bd4a;color:#000}");
     assert.equal(await (await launcher("https://wrong.example")).text(),"");
+    contact="https://business.example/contact?via=chat";
     const allowed=await showWidget(panel());
     assert.equal(allowed.status,200);
     assert.match(allowed.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
     const html=await allowed.text();
+    assert.doesNotMatch(html,/via=chat|Contact the business|Contactar a la empresa/);
     const themeNonce=html.match(/<style nonce="([^"]+)"/)[1];
     assert.ok(allowed.headers.get("Content-Security-Policy").includes(`'nonce-${themeNonce}'`));
     assert.match(allowed.headers.get("Content-Security-Policy"),/img-src https:\/\/images\.example;/);

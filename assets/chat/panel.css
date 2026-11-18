@@ -69,3 +69,7 @@ a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .typing span { animation: none; }
 }
+
+@media (max-width: 760px), (max-width: 950px) and (pointer: coarse) {
+  html, #messages { overscroll-behavior-y: contain; }
+}

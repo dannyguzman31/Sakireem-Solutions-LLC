@@ -37,7 +37,7 @@ function referringOrigin(request) {
 function launcherStyle(request, widget) {
   const theme = validSite(widget.site_origin) && referringOrigin(request) === widget.site_origin
     ? accentTheme(widget.brand_accent) : null;
-  const css = theme ? `button{background:${theme.accent};color:${theme.foreground}}` : "";
+  const css = theme ? `.chat-launcher{background:${theme.accent};color:${theme.foreground}}` : "";
   return new Response(css,{headers:{
     "Content-Type":"text/css; charset=utf-8","Cache-Control":"no-store",
     "X-Content-Type-Options":"nosniff","Cross-Origin-Resource-Policy":"cross-origin"
@@ -76,15 +76,12 @@ function pausedPanel(widget, language, origin, branding) {
   const message = spanish
     ? "El chat está desactivado por el momento."
     : "The chat is currently disabled.";
-  const contact = safeLink(widget.contact_url, null);
-  const contactLabel = spanish ? "Contactar al negocio" : "Contact the business";
   const name = escape(widget.name);
   const html = `<!doctype html><html lang="${language}"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${name}</title>${branding.head}</head><body class="managed-panel">
     <header class="brand-header">${branding.logoMarkup}<h1>${name}</h1></header>
     <main id="messages"><p class="message">${message}</p></main>
-    ${contact ? `<nav id="actions"><a href="${escape(contact)}" target="_blank" rel="noopener noreferrer">${contactLabel}</a></nav>` : ""}
     ${branding.badge}</body></html>`;
   return panelResponse(html, origin, false, branding);
 }
@@ -115,7 +112,6 @@ export default async function showWidget(request) {
     const presentation = {
       name:widget.name,
       greeting:language === "es" ? widget.greeting_es : widget.greeting_en,
-      link:safeLink(widget.contact_url,widget.site_origin),
       language,
       publicMode,
       phoneMode:widget.phone_mode,

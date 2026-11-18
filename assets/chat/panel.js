@@ -8,21 +8,19 @@ const translations = {
     preview: "Preview · FAQ replies",
     ai: "Preview · AI replies",
     live: "AI assistant",
-    limit: "Chat is busy right now. Please try later or use the contact link below.",
-    paused: "This assistant is currently paused. Please use the contact link below.",
-    monthly: "This assistant has reached its monthly conversation allowance. Please use the contact link below.",
-    conversationLimit: "This conversation has reached its message limit. Please use the contact link below.",
+    limit: "Chat is busy right now. Please try later or contact the business through its website.",
+    paused: "This assistant is currently paused. Please contact the business through its website.",
+    monthly: "This assistant has reached its monthly conversation allowance. Please contact the business through its website.",
+    conversationLimit: "This conversation has reached its message limit. Please contact the business through its website.",
     pending: "Your previous request is still processing. Please try again shortly.",
     code: "Preview access code",
     invalidCode: "Enter the correct preview access code and try again.",
-    failed: "I couldn’t get an AI reply. Try again or use the contact link below.",
+    failed: "I couldn’t get an AI reply. Try again or contact the business through its website.",
     unavailable: "This chat preview is unavailable.",
-    fallback: "I don’t have an answer for that question. Please use the contact links below.",
+    fallback: "I don’t have an answer for that question. Please contact the business through its website.",
     welcome: name => `Hello, welcome to ${name}.`,
     offerHelp: "How can I assist you today?",
-    contactBusiness: "Contact the business",
     typing: "Assistant is typing.",
-    transcriptNotice: "If this business enables chat recording, transcripts are kept for 30 days.",
     placeholder: "Type a question",
     send: "Send",
     conversation: "Conversation",
@@ -32,21 +30,19 @@ const translations = {
     preview: "Vista previa · Preguntas frecuentes",
     ai: "Vista previa · Respuestas con IA",
     live: "Asistente con IA",
-    limit: "El chat está ocupado. Intenta más tarde o usa el enlace de contacto.",
-    paused: "Este asistente está pausado. Usa el enlace de contacto de abajo.",
-    monthly: "Este asistente alcanzó su límite mensual de conversaciones. Usa el enlace de contacto de abajo.",
-    conversationLimit: "Esta conversación alcanzó su límite de mensajes. Usa el enlace de contacto de abajo.",
+    limit: "El chat está ocupado. Intenta más tarde o comunícate con la empresa a través de su sitio web.",
+    paused: "Este asistente está pausado. Comunícate con la empresa a través de su sitio web.",
+    monthly: "Este asistente alcanzó su límite mensual de conversaciones. Comunícate con la empresa a través de su sitio web.",
+    conversationLimit: "Esta conversación alcanzó su límite de mensajes. Comunícate con la empresa a través de su sitio web.",
     pending: "Tu solicitud anterior sigue en proceso. Intenta de nuevo en un momento.",
     code: "Código de acceso a la vista previa",
     invalidCode: "Verifica el código de acceso e inténtalo de nuevo.",
-    failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o usa el enlace de contacto.",
+    failed: "No pude obtener una respuesta de la IA. Intenta de nuevo o comunícate con la empresa a través de su sitio web.",
     unavailable: "Esta vista previa del chat no está disponible.",
-    fallback: "No tengo una respuesta para esa pregunta. Usa los enlaces de contacto de abajo.",
+    fallback: "No tengo una respuesta para esa pregunta. Comunícate con la empresa a través de su sitio web.",
     welcome: name => `Hola, te damos la bienvenida a ${name}.`,
     offerHelp: "¿En qué puedo ayudarte hoy?",
-    contactBusiness: "Contactar a la empresa",
     typing: "El asistente está escribiendo.",
-    transcriptNotice: "Si este negocio activa el registro de chats, las conversaciones se guardan durante 30 días.",
     placeholder: "Escribe una pregunta",
     send: "Enviar",
     conversation: "Conversación",
@@ -110,7 +106,7 @@ async function start() {
     if (!response.ok) throw new Error("Bot unavailable");
     bot = await response.json();
   }
-  const content = managed ? {actions:managed.link ? [{label:copy.contactBusiness,url:managed.link}] : []} : bot[language];
+  const content = managed ? {actions:[]} : bot[language];
   const sessionKey = `sakireem-chat-session:${id}:${publicMode ? "public" : "preview"}`;
   let conversationId = null;
   try { conversationId = JSON.parse(sessionStorage.getItem(sessionKey) || "null")?.id || null; } catch {}
@@ -126,12 +122,6 @@ async function start() {
   if (bot.accent) document.body.style.setProperty("--accent", bot.accent);
   appendMessage(managed?.greeting || copy.welcome(bot.name));
   if (!managed?.greeting) appendMessage(copy.offerHelp);
-  if (publicMode || hosted) {
-    const notice = document.createElement("small");
-    notice.textContent = copy.transcriptNotice;
-    messages.append(notice);
-  }
-
   let requestActions = actions;
   if (managed) {
     requestActions = document.createElement("div");
@@ -234,7 +224,7 @@ async function start() {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") window.parent.postMessage("sakireem-chat-close", "*");
+  if (event.key === "Escape" && !document.querySelector("dialog[open]")) window.parent.postMessage("sakireem-chat-close", "*");
 });
 start().catch(() => appendMessage(copy.unavailable));
 
@@ -262,7 +252,7 @@ function addRequestForm(bot, getConversationId, requestActions, kind = "quote") 
     test:"Vista previa: esta solicitud se marcará como prueba.",
     invalid:"Revisa tus datos de contacto y completa los campos obligatorios.",
     code:"Ingresa el código correcto en el chat y vuelve a intentarlo.",
-    retry:"No pudimos confirmar el envío. Intenta de nuevo o usa el enlace de contacto del chat."
+    retry:"No pudimos confirmar el envío. Intenta de nuevo o comunícate con la empresa a través de su sitio web."
   } : {
     title:visit ? "Request a service visit" : "Request a quote in chat",
     name:"Name", contact:"Email or phone", email:"Email address",
@@ -274,7 +264,7 @@ function addRequestForm(bot, getConversationId, requestActions, kind = "quote") 
     test:"Preview: this request will be marked as a test.",
     invalid:"Check your contact details and complete the required fields.",
     code:"Enter the correct preview code in the chat and try again.",
-    retry:"We couldn’t confirm your submission. Try again or use the chat’s contact link."
+    retry:"We couldn’t confirm your submission. Try again or contact the business through its website."
   };
   const button = document.createElement("button");
   button.type = "button";
