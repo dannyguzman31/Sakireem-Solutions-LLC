@@ -182,22 +182,27 @@ async function start() {
   if (managed?.serviceVisit) addRequestForm(id, () => conversationId, requestActions, "service_visit");
 
   if (managed?.bookingUrl) {
-    const booking = document.createElement("a");
+    const recordClick = () => {
+      if (!publicMode || !managed.ticket || !globalThis.crypto?.randomUUID) return;
+      fetch("/api/chat-booking-click", {
+        method: "POST",
+        headers: {"Content-Type":"application/json", "X-Chat-Widget-Ticket":managed.ticket},
+        body: JSON.stringify({bot:id, language, id:crypto.randomUUID()}),
+        keepalive: true
+      }).catch(() => {});
+    };
+    const canEmbed = managed.bookingEmbedUrl && typeof HTMLDialogElement.prototype.showModal === "function";
+    const booking = canEmbed ? document.createElement("button") : bookingLink();
     booking.className = "quote-open booking-link";
-    booking.href = managed.bookingUrl;
-    booking.target = "_blank";
-    booking.rel = "noopener noreferrer";
     booking.textContent = language === "es" ? "Agendar una cita" : "Book an appointment";
-    if (publicMode && managed.ticket) {
-      const recordClick = () => {
-        if (!globalThis.crypto?.randomUUID) return;
-        fetch("/api/chat-booking-click", {
-          method: "POST",
-          headers: {"Content-Type":"application/json", "X-Chat-Widget-Ticket":managed.ticket},
-          body: JSON.stringify({bot:id, language, id:crypto.randomUUID()}),
-          keepalive: true
-        }).catch(() => {});
-      };
+    if (canEmbed) {
+      booking.type = "button";
+      booking.setAttribute("aria-haspopup", "dialog");
+      booking.addEventListener("click", () => {
+        recordClick();
+        openBookingScheduler(booking);
+      });
+    } else {
       booking.addEventListener("click", recordClick);
       booking.addEventListener("auxclick", event => {
         if (event.button === 1) recordClick();
@@ -300,6 +305,48 @@ function addManagedHeaders(headers) {
   if (!managed) return;
   headers["X-Chat-Managed"] = "1";
   if (managed.ticket) headers["X-Chat-Widget-Ticket"] = managed.ticket;
+}
+
+function bookingLink() {
+  const link = document.createElement("a");
+  link.href = managed.bookingUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  return link;
+}
+
+function openBookingScheduler(trigger) {
+  let dialog = document.getElementById("booking-scheduler");
+  if (!dialog) {
+    const spanish = language === "es";
+    dialog = document.createElement("dialog");
+    dialog.id = "booking-scheduler";
+    dialog.className = "booking-scheduler";
+    dialog.setAttribute("aria-labelledby", "booking-scheduler-title");
+
+    const heading = document.createElement("div");
+    const title = document.createElement("h2");
+    title.id = "booking-scheduler-title";
+    title.textContent = spanish ? "Agendar una cita" : "Book an appointment";
+    const back = document.createElement("button");
+    back.type = "button";
+    back.textContent = spanish ? "Volver al chat" : "Back to chat";
+    back.onclick = () => dialog.close();
+
+    const frame = document.createElement("iframe");
+    frame.title = spanish ? "Agenda de citas de Acuity" : "Acuity appointment scheduling";
+    frame.setAttribute("sandbox", "allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox");
+    frame.referrerPolicy = "no-referrer";
+    frame.src = managed.bookingEmbedUrl;
+
+    const fallback = bookingLink();
+    fallback.textContent = spanish ? "Abrir la agenda en otra pestaña" : "Open scheduler in a new tab";
+    heading.append(title, back);
+    dialog.append(heading, frame, fallback);
+    dialog.addEventListener("close", () => trigger.focus());
+    document.body.append(dialog);
+  }
+  dialog.showModal();
 }
 
 function addRequestForm(bot, getConversationId, requestActions, kind = "quote") {

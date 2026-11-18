@@ -60,14 +60,17 @@ function panelBranding(widget, language) {
   return {head,logoMarkup,badge,nonce,imageSource};
 }
 
-function panelResponse(html, origin, active, branding) {
+function panelResponse(html, origin, active, branding, bookingEmbedUrl = null) {
+  const bookingPolicy = bookingEmbedUrl
+    ? ` frame-src ${new URL(bookingEmbedUrl).origin} https://app.acuityscheduling.com https://acuityscheduling.com;`
+    : "";
   const chatPolicy = active ? " connect-src 'self';" : "";
   const styleNonce = branding.nonce ? ` 'nonce-${branding.nonce}'` : "";
   const imagePolicy = branding.imageSource ? ` img-src ${branding.imageSource};` : "";
   return new Response(html,{headers:{
     "Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow",
     "X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin",
-    "Content-Security-Policy":`default-src 'none'; script-src 'self'; style-src 'self'${styleNonce};${imagePolicy}${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
+    "Content-Security-Policy":`default-src 'none'; script-src 'self'; style-src 'self'${styleNonce};${imagePolicy}${chatPolicy}${bookingPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
   }});
 }
 
@@ -109,6 +112,11 @@ export default async function showWidget(request) {
     }
     const branding = panelBranding(widget, language);
     if (publicMode && (!widget.is_live || !widget.enabled)) return pausedPanel(widget, language, origin, branding);
+    const bookingUrl = safeLink(widget.booking_url, null);
+    const bookingHost = bookingUrl ? new URL(bookingUrl).host : "";
+    const bookingEmbedUrl = widget.booking_embed_enabled === true &&
+      /^(?:([a-z0-9-]+\.)?acuityscheduling\.com|[a-z0-9-]+\.as\.me)$/.test(bookingHost)
+      ? bookingUrl : null;
     const presentation = {
       name:widget.name,
       greeting:language === "es" ? widget.greeting_es : widget.greeting_en,
@@ -118,7 +126,8 @@ export default async function showWidget(request) {
       addressMode:widget.address_mode,
       serviceVisit:widget.service_visit_enabled === true,
       quoteEnabled:widget.quote_button_enabled !== false,
-      bookingUrl:safeLink(widget.booking_url, null),
+      bookingUrl,
+      bookingEmbedUrl,
       ticket:publicMode ? widgetTicket(bot,language,origin,process.env.SUPABASE_SECRET_KEY.trim()) : null
     };
     const html = `<!doctype html><html lang="${language}"><head>
@@ -132,7 +141,7 @@ export default async function showWidget(request) {
         <input id="preview-code" type="password" maxlength="128" autocomplete="off" hidden>
         <div class="composer"><input id="message" type="text" maxlength="350" required><button id="send" type="submit" hidden></button></div>
       </form><nav id="actions"></nav>${branding.badge}</body></html>`;
-    return panelResponse(html, origin, true, branding);
+    return panelResponse(html, origin, true, branding, bookingEmbedUrl);
   } catch {
     console.error("Managed chat widget configuration unavailable");
     return unavailable(503);

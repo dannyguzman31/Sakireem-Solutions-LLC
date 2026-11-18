@@ -106,6 +106,18 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     const bookingPanel=await (await showWidget(panel())).text();
     assert.match(bookingPanel,/&quot;quoteEnabled&quot;:false/);
     assert.match(bookingPanel,/https:\/\/booking\.example\/schedule\?from=chat&amp;lang=es/);
+    brand={booking_url:'https://dental.as.me/?appointmentType=123',booking_embed_enabled:true};
+    const embed=await showWidget(panel());
+    assert.match(embed.headers.get("Content-Security-Policy"), /frame-src https:\/\/dental\.as\.me /);
+    assert.match(await embed.text(), /&quot;bookingEmbedUrl&quot;:&quot;https:\/\/dental\.as\.me/);
+    brand.booking_embed_enabled=false;
+    const regular=await showWidget(panel());
+    assert.doesNotMatch(regular.headers.get("Content-Security-Policy"), /frame-src/);
+    assert.match(await regular.text(), /&quot;bookingEmbedUrl&quot;:null/);
+    brand={booking_url:'https://dental.as.me.example.net/',booking_embed_enabled:true};
+    const invalidEmbed=await showWidget(panel());
+    assert.doesNotMatch(invalidEmbed.headers.get("Content-Security-Policy"), /frame-src/);
+    assert.match(await invalidEmbed.text(), /&quot;bookingEmbedUrl&quot;:null/);
     brand={booking_url:'https://name:pass@booking.example/'};
     assert.match(await (await showWidget(panel())).text(),/&quot;bookingUrl&quot;:null/);
     brand={brand_badge_hidden:true,brand_logo_url:'https://evil.example;bad/logo',brand_accent:'#fff;bad'};

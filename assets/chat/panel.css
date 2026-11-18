@@ -96,3 +96,26 @@ a { color: var(--accent); }
 @media (max-width: 760px), (max-width: 950px) and (pointer: coarse) {
   html, #messages { overscroll-behavior-y: contain; }
 }
+
+.booking-scheduler {
+  box-sizing: border-box;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 1px solid #d4dde4;
+  border-radius: 12px;
+  color: #182937;
+  background: #fff;
+}
+.booking-scheduler[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.booking-scheduler::backdrop { background: #15304a88; }
+.booking-scheduler > div {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 4px 8px; padding: 8px 10px; border-bottom: 1px solid #d4dde4;
+}
+.booking-scheduler h2 { margin: 0; font-size: 15px; }
+.booking-scheduler button { border: 1px solid #71808c; color: inherit; background: #fff; }
+.booking-scheduler iframe { display: block; width: 100%; height: 100%; border: 0; }
+.booking-scheduler > a { justify-self: center; font-size: 13px; padding: 8px 10px; }
