@@ -174,10 +174,38 @@ async function start() {
     requestActions.className = "request-actions";
     actions.prepend(requestActions);
   }
-  if (managed || (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted)) {
+  const showQuote = managed ? managed.quoteEnabled !== false :
+    (id === "sakireem" && (publicMode || hosted)) || (id === "hvac-arizona-valley" && hosted);
+  if (showQuote) {
     addRequestForm(id, () => conversationId, requestActions);
   }
   if (managed?.serviceVisit) addRequestForm(id, () => conversationId, requestActions, "service_visit");
+
+  if (managed?.bookingUrl) {
+    const booking = document.createElement("a");
+    booking.className = "quote-open booking-link";
+    booking.href = managed.bookingUrl;
+    booking.target = "_blank";
+    booking.rel = "noopener noreferrer";
+    booking.textContent = language === "es" ? "Agendar una cita" : "Book an appointment";
+    if (publicMode && managed.ticket) {
+      const recordClick = () => {
+        if (!globalThis.crypto?.randomUUID) return;
+        fetch("/api/chat-booking-click", {
+          method: "POST",
+          headers: {"Content-Type":"application/json", "X-Chat-Widget-Ticket":managed.ticket},
+          body: JSON.stringify({bot:id, language, id:crypto.randomUUID()}),
+          keepalive: true
+        }).catch(() => {});
+      };
+      booking.addEventListener("click", recordClick);
+      booking.addEventListener("auxclick", event => {
+        if (event.button === 1) recordClick();
+      });
+    }
+    requestActions.append(booking);
+  }
+  actions.hidden = !requestActions.childElementCount && !content.actions.length;
 
   for (const action of content.actions) {
     const url = new URL(action.url);

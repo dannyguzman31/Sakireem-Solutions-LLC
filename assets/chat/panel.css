@@ -19,6 +19,7 @@ header p { margin: 4px 0 0; font-size: 12px; }
 .visitor { align-self: end; background: var(--accent); color: white; }
 #actions { padding: 4px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
 #actions { padding-bottom: 12px; }
+#actions[hidden] { display: none; }
 form { display: flex; gap: 6px; padding: 8px 14px; }
 form[hidden] { display: none; }
 input { flex: 1; min-width: 0; font: 16px system-ui, sans-serif; border: 1px solid #71808c; border-radius: 8px; padding: 7px; }
@@ -52,6 +53,7 @@ a { color: var(--accent); }
   background:var(--accent);color:white;border:0;border-radius:8px;padding:.55rem .75rem;
   font:inherit;cursor:pointer;
 }
+.booking-link { display: inline-flex; align-items: center; text-decoration: none; }
 .quote-dialog {
   width:min(420px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;
   border:1px solid #d4dde4;border-radius:12px;padding:16px;color:#15304a;background:white;

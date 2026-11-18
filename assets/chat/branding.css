@@ -8,7 +8,7 @@ body.managed-panel {
   color: var(--brand-on-accent);
 }
 
-.managed-panel a { color: var(--brand-link); }
+.managed-panel a:not(.booking-link) { color: var(--brand-link); }
 .managed-panel .brand-header { display: flex; align-items: center; gap: 10px; }
 .managed-panel .brand-header img {
   width: 36px; height: 36px; object-fit: contain; flex: none;

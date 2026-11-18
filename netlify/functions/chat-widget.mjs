@@ -117,6 +117,8 @@ export default async function showWidget(request) {
       phoneMode:widget.phone_mode,
       addressMode:widget.address_mode,
       serviceVisit:widget.service_visit_enabled === true,
+      quoteEnabled:widget.quote_button_enabled !== false,
+      bookingUrl:safeLink(widget.booking_url, null),
       ticket:publicMode ? widgetTicket(bot,language,origin,process.env.SUPABASE_SECRET_KEY.trim()) : null
     };
     const html = `<!doctype html><html lang="${language}"><head>

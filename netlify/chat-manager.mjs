@@ -31,6 +31,9 @@ export function createManager({env=process.env,fetchImpl=fetch}={}){
   knowledge:(bot,language)=>rpc('chat_knowledge',{p_bot:bot,p_language:language}),
   passages:(bot,question)=>rpc('chat_source_passages',{p_bot:bot,p_question:question}),
   widget:(bot)=>rpc('chat_widget_config',{p_bot:bot}),
+  bookingClick:({bot,origin,language,id})=>rpc('chat_record_booking_click',{
+   p_bot:bot,p_origin:origin,p_language:language,p_id:id
+  }),
   lead:(values,widgetAccess)=>widgetAccess
     ? rpc('chat_submit_widget_intake',{...values,p_origin:widgetAccess.origin})
     : rpc('chat_submit_linked_lead',values),

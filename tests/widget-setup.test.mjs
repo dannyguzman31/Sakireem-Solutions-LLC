@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {randomUUID} from "node:crypto";
 import showWidget from "../netlify/functions/chat-widget.mjs";
 import chat from "../netlify/functions/chat.mjs";
+import recordBookingClick from "../netlify/functions/chat-booking-click.mjs";
 import submitLead from "../netlify/functions/chat-leads.mjs";
 import {ticketOrigin,widgetTicket} from "../netlify/widget-access.mjs";
 
@@ -31,6 +32,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
       language_mode:languageMode,greeting_es:"Hola",is_live:live,enabled,...brand
     });
     if (url.endsWith("/chat_admit_widget")) return Response.json({allowed:true,conversation_id:randomUUID()});
+    if (url.endsWith("/chat_record_booking_click")) return Response.json(true);
     if (url.endsWith("/chat_submit_widget_intake")) return Response.json("saved");
     if (url.endsWith("/chat_knowledge")) return Response.json(null);
     if (url.endsWith("/chat_source_passages")) return Response.json([]);
@@ -100,6 +102,12 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.match(html,/--accent:#f0bd4a;--brand-on-accent:#000/);
     assert.match(html,/logo\.png\?x=1&amp;y=2/);
     assert.match(html,/Con tecnología de Sakireem/);
+    brand={quote_button_enabled:false,booking_url:'https://booking.example/schedule?from=chat&lang=es'};
+    const bookingPanel=await (await showWidget(panel())).text();
+    assert.match(bookingPanel,/&quot;quoteEnabled&quot;:false/);
+    assert.match(bookingPanel,/https:\/\/booking\.example\/schedule\?from=chat&amp;lang=es/);
+    brand={booking_url:'https://name:pass@booking.example/'};
+    assert.match(await (await showWidget(panel())).text(),/&quot;bookingUrl&quot;:null/);
     brand={brand_badge_hidden:true,brand_logo_url:'https://evil.example;bad/logo',brand_accent:'#fff;bad'};
     assert.equal(await (await launcher(origin)).text(),"");
     const agency=await showWidget(panel());
@@ -115,6 +123,15 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.equal(ticketOrigin(ticket,"other","es",secret),null);
     assert.equal(ticketOrigin(ticket,bot,"en",secret),null);
     assert.equal(ticketOrigin(widgetTicket(bot,"es",origin,secret,0),bot,"es",secret),null);
+    const clickId=randomUUID();
+    const click=(headers,body={id:clickId})=>recordBookingClick(post("/api/chat-booking-click",body,headers));
+    assert.equal((await click({})).status,403);
+    assert.equal((await click({"X-Chat-Widget-Ticket":ticket,Origin:"https://wrong.example"})).status,403);
+    assert.equal((await click({"X-Chat-Widget-Ticket":ticket},{id:"bad"})).status,400);
+    assert.equal((await click({"X-Chat-Widget-Ticket":ticket},{id:clickId,language:"en"})).status,403);
+    assert.equal((await click({"X-Chat-Widget-Ticket":ticket})).status,204);
+    assert.deepEqual(calls.find(([key])=>key==="chat_record_booking_click")[1],
+      {p_bot:bot,p_origin:origin,p_language:"es",p_id:clickId});
     const lead={name:"Client",contact:"client@example.com",project:"Estimate",confirmed:true};
     assert.equal((await submitLead(post("/api/chat-leads",lead,{"X-Chat-Mode":"public"}))).status,403);
     assert.equal((await submitLead(post("/api/chat-leads",lead,{"X-Chat-Mode":"public","X-Chat-Widget-Ticket":ticket}))).status,200);
