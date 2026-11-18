@@ -3,7 +3,7 @@ import {request as httpsRequest} from 'node:https';
 import ipaddr from 'ipaddr.js';
 import {parse} from 'parse5';
 
-const DASHBOARD = 'https://sensational-cucurucho-b41b69.netlify.app';
+import {isDashboardOrigin} from '../dashboard-origins.mjs';
 const MAX_BYTES = 1_000_000;
 const MAX_TEXT = 60_000;
 const skipped = new Set(['script','style','noscript','template','svg','iframe','nav','footer','form']);
@@ -95,7 +95,7 @@ async function isAdmin(auth) {
 
 export default async function knowledgeWeb(req) {
   const origin = req.headers.get('origin');
-  if (origin !== DASHBOARD) return new Response(null,{status:403});
+  if (!isDashboardOrigin(origin)) return new Response(null,{status:403});
   const headers = {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'Authorization, Content-Type',
     'Access-Control-Allow-Methods':'POST, OPTIONS','Cache-Control':'no-store',Vary:'Origin'};
   const reply = (status,body)=>Response.json(body,{status,headers});
