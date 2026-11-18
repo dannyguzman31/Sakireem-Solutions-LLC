@@ -4,7 +4,7 @@
   --chat-top: max(12px, env(safe-area-inset-top));
   --chat-bottom: max(12px, env(safe-area-inset-bottom));
   position: fixed;
-  left: var(--chat-left);
+  right: var(--chat-right);
   bottom: var(--chat-bottom);
   z-index: 10000;
   display: block;
@@ -31,8 +31,7 @@ button:focus-visible {
   box-shadow: 0 4px 16px #10223540;
 }
 .chat-window {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  position: relative;
   width: min(380px, calc(100vw - var(--chat-left) - var(--chat-right)));
   height: min(575px, calc(100vh - var(--chat-top) - var(--chat-bottom)));
   height: min(575px, calc(100dvh - var(--chat-top) - var(--chat-bottom)));
@@ -46,22 +45,17 @@ button:focus-visible {
   height: min(780px, calc(100vh - var(--chat-top) - var(--chat-bottom)));
   height: min(780px, calc(100dvh - var(--chat-top) - var(--chat-bottom)));
 }
-.chat-toolbar {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 6px;
-  background: #f8fafc;
-}
-.chat-control {
+.chat-fallback-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
   width: 44px;
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: transparent;
-  color: #15304a;
+  background: #15304a;
+  color: white;
 }
-.chat-control:hover { background: #e8eef3; }
-.chat-control svg { width: 19px; height: 19px; }
 iframe { display: block; width: 100%; height: 100%; border: 0; background: white; }
 
 @media (max-width: 760px), (max-width: 950px) and (pointer: coarse) {
@@ -78,11 +72,10 @@ iframe { display: block; width: 100%; height: 100%; border: 0; background: white
     box-shadow: none;
     overscroll-behavior: contain;
   }
-  .chat-toolbar {
-    justify-content: flex-end;
-    padding: max(2px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) 2px max(6px, env(safe-area-inset-left));
+  .chat-fallback-close {
+    top: max(6px, env(safe-area-inset-top));
+    right: max(6px, env(safe-area-inset-right));
   }
-  .chat-toolbar button[aria-pressed] { display: none; }
   .chat-window iframe {
     box-sizing: border-box;
     padding-left: env(safe-area-inset-left);

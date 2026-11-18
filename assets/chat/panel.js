@@ -21,6 +21,7 @@ const translations = {
     welcome: name => `Hello, welcome to ${name}.`,
     offerHelp: "How can I assist you today?",
     typing: "Assistant is typing.",
+    justNow: "Just now",
     placeholder: "Type a question",
     send: "Send",
     conversation: "Conversation",
@@ -43,6 +44,7 @@ const translations = {
     welcome: name => `Hola, te damos la bienvenida a ${name}.`,
     offerHelp: "¿En qué puedo ayudarte hoy?",
     typing: "El asistente está escribiendo.",
+    justNow: "Ahora mismo",
     placeholder: "Escribe una pregunta",
     send: "Enviar",
     conversation: "Conversación",
@@ -70,15 +72,59 @@ messages.setAttribute("aria-label", copy.conversation);
 actions.setAttribute("aria-label", copy.contact);
 field.placeholder = copy.placeholder;
 field.setAttribute("aria-label", copy.placeholder);
-send.textContent = copy.send;
+send.setAttribute("aria-label", copy.send);
+send.title = copy.send;
+send.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>';
+function syncSendButton() {
+  send.hidden = !field.value.trim();
+}
+field.addEventListener("input", syncSendButton);
+syncSendButton();
 document.getElementById("preview").textContent = publicMode ? copy.live : (aiEnabled ? copy.ai : copy.preview);
 
+function messageBubble(text, visitor = false) {
+  const bubble = document.createElement("p");
+  bubble.className = visitor ? "message visitor" : "message";
+  bubble.textContent = text;
+  return bubble;
+}
+
 function appendMessage(text, visitor = false) {
-  const message = document.createElement("p");
-  message.className = visitor ? "message visitor" : "message";
-  message.textContent = text;
-  messages.append(message);
+  messages.append(messageBubble(text, visitor));
   messages.scrollTop = messages.scrollHeight;
+}
+
+const relativeTime = new Intl.RelativeTimeFormat(language, {numeric:"always"});
+const exactTime = new Intl.DateTimeFormat(language, {dateStyle:"medium",timeStyle:"short"});
+let timestampTimer;
+
+function updateTimestamp(timestamp, now) {
+  const minutes = Math.max(0, Math.floor((now - Date.parse(timestamp.dateTime)) / 60000));
+  const text = minutes < 1 ? copy.justNow
+    : minutes < 60 ? relativeTime.format(-minutes, "minute")
+    : minutes < 1440 ? relativeTime.format(-Math.floor(minutes / 60), "hour")
+    : relativeTime.format(-Math.floor(minutes / 1440), "day");
+  if (timestamp.textContent !== text) timestamp.textContent = text;
+}
+
+function appendReply(text, typingBubble) {
+  const turn = document.createElement("div");
+  turn.className = "assistant-turn";
+  const now = new Date();
+  const timestamp = document.createElement("time");
+  timestamp.className = "reply-time";
+  timestamp.dateTime = now.toISOString();
+  timestamp.title = exactTime.format(now);
+  timestamp.setAttribute("aria-live", "off");
+  updateTimestamp(timestamp, now.getTime());
+  turn.append(messageBubble(text), timestamp);
+  if (typingBubble) typingBubble.replaceWith(turn);
+  else messages.append(turn);
+  messages.scrollTop = messages.scrollHeight;
+  timestampTimer ??= window.setInterval(() => {
+    const now = Date.now();
+    for (const stamp of messages.querySelectorAll(".reply-time")) updateTimestamp(stamp, now);
+  }, 15000);
 }
 
 function showTyping() {
@@ -149,18 +195,14 @@ async function start() {
     const question = field.value.trim();
     if (!question || send.disabled) return;
     appendMessage(question, true);
+    if (document.activeElement === send) field.focus();
     field.value = "";
+    syncSendButton();
     if (aiEnabled) {
       send.disabled = true;
       form.setAttribute("aria-busy", "true");
       const bubble = showTyping();
-      function showReply(text) {
-        bubble.classList.remove("typing");
-        bubble.removeAttribute("aria-label");
-        bubble.removeAttribute("role");
-        bubble.textContent = text;
-        messages.scrollTop = messages.scrollHeight;
-      }
+      const showReply = (text) => appendReply(text, bubble);
       try {
         const headers = { "Content-Type": "application/json" };
         if (publicMode) headers["X-Chat-Mode"] = "public";
@@ -177,6 +219,7 @@ async function start() {
           codeField.required = true;
           codeField.hidden = false;
           field.value = question;
+          syncSendButton();
           showReply(copy.invalidCode);
           codeField.focus();
           return;
@@ -207,7 +250,7 @@ async function start() {
       } catch {
         showReply(copy.failed);
       } finally {
-        if (bubble.classList.contains("typing")) bubble.remove();
+        bubble.remove();
         send.disabled = false;
         form.removeAttribute("aria-busy");
       }
@@ -218,14 +261,11 @@ async function start() {
       faq,
       matches: faq.keywords.filter((keyword) => query.includes(` ${normalize(keyword)} `)).length
     })).sort((first, second) => second.matches - first.matches)[0];
-    appendMessage(answered?.matches ? answered.faq.answer : copy.fallback);
+    appendReply(answered?.matches ? answered.faq.answer : copy.fallback);
   });
   form.hidden = false;
 }
 
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !document.querySelector("dialog[open]")) window.parent.postMessage("sakireem-chat-close", "*");
-});
 start().catch(() => appendMessage(copy.unavailable));
 
 function addManagedHeaders(headers) {
@@ -337,7 +377,7 @@ function addRequestForm(bot, getConversationId, requestActions, kind = "quote") 
         syncContact();
         previousBody = undefined;
         status.textContent = labels.sent;
-        appendMessage(labels.sent);
+        appendReply(labels.sent);
       } else {
         status.textContent = response.status === 401 ? labels.code : response.status === 400 ? labels.invalid : labels.retry;
       }

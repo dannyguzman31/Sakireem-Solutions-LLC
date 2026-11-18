@@ -50,7 +50,7 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.match(draft.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
     const draftHtml=await draft.text();
     assert.match(draftHtml,/El chat está desactivado/);
-    assert.doesNotMatch(draftHtml,/<script|<form|<nav id="actions"|"ticket"|data-managed-widget/);
+    assert.doesNotMatch(draftHtml,/panel\.js|<form|<nav id="actions"|"ticket"|data-managed-widget/);
     assert.equal((await showWidget(panel("","https://wrong.example"))).status,403);
     assert.equal((await showWidget(panel("&preview=hosted"))).status,404);
     const preview=await showWidget(new Request(endpoint+`/api/chat-widget?bot=${bot}&lang=es&preview=hosted`));
@@ -89,6 +89,10 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     assert.equal(allowed.status,200);
     assert.match(allowed.headers.get("Content-Security-Policy"),/frame-ancestors https:\/\/business\.example$/);
     const html=await allowed.text();
+    assert.match(html,/data-parent-origin="https:\/\/business\.example"/);
+    assert.match(html,/panel-controls\.js/);
+    assert.match(html,/<div class="composer">/);
+    assert.match(html,/<button id="send" type="submit" hidden>/);
     assert.doesNotMatch(html,/via=chat|Contact the business|Contactar a la empresa/);
     const themeNonce=html.match(/<style nonce="([^"]+)"/)[1];
     assert.ok(allowed.headers.get("Content-Security-Policy").includes(`'nonce-${themeNonce}'`));

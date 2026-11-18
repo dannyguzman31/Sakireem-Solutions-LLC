@@ -61,13 +61,13 @@ function panelBranding(widget, language) {
 }
 
 function panelResponse(html, origin, active, branding) {
-  const chatPolicy = active ? " script-src 'self'; connect-src 'self';" : "";
+  const chatPolicy = active ? " connect-src 'self';" : "";
   const styleNonce = branding.nonce ? ` 'nonce-${branding.nonce}'` : "";
   const imagePolicy = branding.imageSource ? ` img-src ${branding.imageSource};` : "";
   return new Response(html,{headers:{
     "Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow",
     "X-Content-Type-Options":"nosniff","Referrer-Policy":"same-origin",
-    "Content-Security-Policy":`default-src 'none'; style-src 'self'${styleNonce};${imagePolicy}${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
+    "Content-Security-Policy":`default-src 'none'; script-src 'self'; style-src 'self'${styleNonce};${imagePolicy}${chatPolicy} base-uri 'none'; form-action 'none'; frame-ancestors ${origin || "'none'"}`
   }});
 }
 
@@ -79,8 +79,8 @@ function pausedPanel(widget, language, origin, branding) {
   const name = escape(widget.name);
   const html = `<!doctype html><html lang="${language}"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${name}</title>${branding.head}</head><body class="managed-panel">
-    <header class="brand-header">${branding.logoMarkup}<h1>${name}</h1></header>
+    <title>${name}</title>${branding.head}<script src="/assets/chat/panel-controls.js" defer></script></head><body class="managed-panel" data-parent-origin="${escape(origin)}">
+    <header class="brand-header">${branding.logoMarkup}<div><h1>${name}</h1></div></header>
     <main id="messages"><p class="message">${message}</p></main>
     ${branding.badge}</body></html>`;
   return panelResponse(html, origin, false, branding);
@@ -122,13 +122,13 @@ export default async function showWidget(request) {
     const html = `<!doctype html><html lang="${language}"><head>
       <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
       <title>${escape(widget.name)}</title>${branding.head}
-      <script src="/assets/chat/panel.js" defer></script></head>
-      <body class="managed-panel" data-managed-widget="${escape(JSON.stringify(presentation))}">
+      <script src="/assets/chat/panel.js" defer></script><script src="/assets/chat/panel-controls.js" defer></script></head>
+      <body class="managed-panel" data-parent-origin="${escape(origin || "")}" data-managed-widget="${escape(JSON.stringify(presentation))}">
       <header class="brand-header">${branding.logoMarkup}<div><h1 id="business"></h1><p id="preview"></p></div></header>
       <div id="messages" role="log" aria-live="polite"></div><div id="questions"></div>
       <form id="message-form" hidden>
         <input id="preview-code" type="password" maxlength="128" autocomplete="off" hidden>
-        <input id="message" type="text" maxlength="350" required><button id="send" type="submit"></button>
+        <div class="composer"><input id="message" type="text" maxlength="350" required><button id="send" type="submit" hidden></button></div>
       </form><nav id="actions"></nav>${branding.badge}</body></html>`;
     return panelResponse(html, origin, true, branding);
   } catch {
