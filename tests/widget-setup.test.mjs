@@ -118,6 +118,23 @@ test("managed panel, origin tickets, preview AI and managed lead routing", async
     const invalidEmbed=await showWidget(panel());
     assert.doesNotMatch(invalidEmbed.headers.get("Content-Security-Policy"), /frame-src/);
     assert.match(await invalidEmbed.text(), /&quot;bookingEmbedUrl&quot;:null/);
+    for (const [bookingUrl, expectedOrigins] of [
+      ["https://calendly.com/sakireemsolutions/30min", "https://calendly.com"],
+      ["https://calendar.google.com/calendar/appointments/schedules/sample?gv=true", "https://calendar.google.com"],
+      ["https://calendar.app.google/sample", "https://calendar.app.google https://calendar.google.com"],
+      ["https://scheduler.example.com/public/123", "https://scheduler.example.com"]
+    ]) {
+      brand={booking_url:bookingUrl, booking_embed_mode:"booking_embed"};
+      const embedded=await showWidget(panel());
+      assert.ok(embedded.headers.get("Content-Security-Policy").includes(`frame-src ${expectedOrigins};`));
+      assert.ok((await embedded.text()).includes(`&quot;bookingEmbedUrl&quot;:&quot;${bookingUrl}&quot;`));
+    }
+    for (const url of [endpoint + "/anything", "https://127.0.0.1/private", "http://calendly.com/example"]) {
+      brand={booking_url:url,booking_embed_mode:"booking_embed"};
+      const blocked=await showWidget(panel());
+      assert.doesNotMatch(blocked.headers.get("Content-Security-Policy"), /frame-src/);
+      assert.match(await blocked.text(), /&quot;bookingEmbedUrl&quot;:null/);
+    }
     brand={booking_url:'https://name:pass@booking.example/'};
     assert.match(await (await showWidget(panel())).text(),/&quot;bookingUrl&quot;:null/);
     brand={brand_badge_hidden:true,brand_logo_url:'https://evil.example;bad/logo',brand_accent:'#fff;bad'};

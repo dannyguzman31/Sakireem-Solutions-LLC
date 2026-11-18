@@ -334,7 +334,7 @@ function openBookingScheduler(trigger) {
     back.onclick = () => dialog.close();
 
     const frame = document.createElement("iframe");
-    frame.title = spanish ? "Agenda de citas de Acuity" : "Acuity appointment scheduling";
+    frame.title = spanish ? "Agenda de citas" : "Appointment scheduler";
     frame.setAttribute("sandbox", "allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox");
     frame.referrerPolicy = "no-referrer";
     frame.src = managed.bookingEmbedUrl;

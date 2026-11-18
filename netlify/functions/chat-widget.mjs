@@ -60,10 +60,27 @@ function panelBranding(widget, language) {
   return {head,logoMarkup,badge,nonce,imageSource};
 }
 
-function panelResponse(html, origin, active, branding, bookingEmbedUrl = null) {
-  const bookingPolicy = bookingEmbedUrl
-    ? ` frame-src ${new URL(bookingEmbedUrl).origin} https://app.acuityscheduling.com https://acuityscheduling.com;`
-    : "";
+function embeddedBooking(widget, bookingUrl, panelOrigin) {
+  if (!bookingUrl) return null;
+  const target = new URL(bookingUrl);
+  const acuity = /^(?:([a-z0-9-]+\.)?acuityscheduling\.com|[a-z0-9-]+\.as\.me)$/.test(target.host);
+  const supported = widget.booking_embed_mode === "booking_embed" ||
+    (widget.booking_embed_enabled === true && acuity);
+  if (!supported || target.origin === panelOrigin || !validSite(`https://${target.hostname}`)) return null;
+
+  const origins = new Set([target.origin]);
+  if (acuity) {
+    origins.add("https://app.acuityscheduling.com");
+    origins.add("https://acuityscheduling.com");
+  } else if (target.hostname === "calendar.app.google") {
+    origins.add("https://calendar.google.com");
+  }
+  origins.delete(panelOrigin);
+  return {url:target.href, origins:[...origins]};
+}
+
+function panelResponse(html, origin, active, branding, booking = null) {
+  const bookingPolicy = booking ? ` frame-src ${booking.origins.join(" ")};` : "";
   const chatPolicy = active ? " connect-src 'self';" : "";
   const styleNonce = branding.nonce ? ` 'nonce-${branding.nonce}'` : "";
   const imagePolicy = branding.imageSource ? ` img-src ${branding.imageSource};` : "";
@@ -113,10 +130,7 @@ export default async function showWidget(request) {
     const branding = panelBranding(widget, language);
     if (publicMode && (!widget.is_live || !widget.enabled)) return pausedPanel(widget, language, origin, branding);
     const bookingUrl = safeLink(widget.booking_url, null);
-    const bookingHost = bookingUrl ? new URL(bookingUrl).host : "";
-    const bookingEmbedUrl = widget.booking_embed_enabled === true &&
-      /^(?:([a-z0-9-]+\.)?acuityscheduling\.com|[a-z0-9-]+\.as\.me)$/.test(bookingHost)
-      ? bookingUrl : null;
+    const booking = embeddedBooking(widget, bookingUrl, new URL(request.url).origin);
     const presentation = {
       name:widget.name,
       greeting:language === "es" ? widget.greeting_es : widget.greeting_en,
@@ -127,7 +141,7 @@ export default async function showWidget(request) {
       serviceVisit:widget.service_visit_enabled === true,
       quoteEnabled:widget.quote_button_enabled !== false,
       bookingUrl,
-      bookingEmbedUrl,
+      bookingEmbedUrl:booking?.url ?? null,
       ticket:publicMode ? widgetTicket(bot,language,origin,process.env.SUPABASE_SECRET_KEY.trim()) : null
     };
     const html = `<!doctype html><html lang="${language}"><head>
@@ -141,7 +155,7 @@ export default async function showWidget(request) {
         <input id="preview-code" type="password" maxlength="128" autocomplete="off" hidden>
         <div class="composer"><input id="message" type="text" maxlength="350" required><button id="send" type="submit" hidden></button></div>
       </form><nav id="actions"></nav>${branding.badge}</body></html>`;
-    return panelResponse(html, origin, true, branding, bookingEmbedUrl);
+    return panelResponse(html, origin, true, branding, booking);
   } catch {
     console.error("Managed chat widget configuration unavailable");
     return unavailable(503);
